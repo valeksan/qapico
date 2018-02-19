@@ -52,6 +52,7 @@
 
 // Таблица: Знаковые даты дорожных карт проектов
 #define T_ROADMAPSDATESPOOL                 "TableRoadmapDatesPool"
+#define T_ROADMAPSDATESPOOL_CURRENCY_ID     "Currency_id"
 #define T_ROADMAPSDATESPOOL_DATE            "Date"
 #define T_ROADMAPSDATESPOOL_EVENT_INFO      "EventInfo"
 
@@ -116,7 +117,9 @@ public:
      * Подключение к базе данных и вставка записей в таблицу
      * */
     void connectToDataBase();
-    bool inserIntoCurrenciesTable(const QVariantList &data);
+    bool inserIntoCurrenciesTableParseInfo(const QVariantList &data);
+    bool inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data);
+    bool inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data);
     bool inserIntoRoadmapDatesPoolTable(const QVariantList &data);
     bool inserIntoTokenAlgTable(const QVariantList &data);
     bool inserIntoAppAreasTable(const QVariantList &data);
