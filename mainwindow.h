@@ -8,6 +8,7 @@
 #include "core.h"
 #include "downloader.h"
 #include "taskresult.h"
+#include "database.h"
 
 #include <qgumbodocument.h>
 #include <qgumbonode.h>
@@ -35,7 +36,15 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Core *m_pCore;
-    //DataBase *db;
+    DataBase *db;
+
+private:
+    /* Формирование моделей реляционных связей */
+    void setupCurrenciesModel   (const QString &tableName, const QStringList &headers);
+    void setupRoadmapDatesModel (const QString &tableName, const QStringList &headers);
+    void setupTechPoolModel     (const QString &tableName, const QStringList &headers);
+    void setupGithubPoolModel   (const QString &tableName, const QStringList &headers);
+    void setupMarketPoolModel   (const QString &tableName, const QStringList &headers);
 };
 
 Q_DECLARE_METATYPE(TaskResult)

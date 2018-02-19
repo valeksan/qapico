@@ -7,10 +7,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    ui->tableWidgetCurrencies->setColumnWidth(0, 200);
-//    ui->tableWidgetCurrencies->setColumnWidth(1, 70);
-//    ui->tableWidgetCurrencies->setColumnWidth(2, 130);
     ui->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    /* Первым делом необходимо создать объект для работы с базой данных
+     * и инициализировать подключение к базе данных
+     * */
+    db = new DataBase();
+    db->connectToDataBase();
 
     m_pCore->registerTask(Tasks::TASK_UPDATE, [this]() -> TaskResult
     {
@@ -18,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
         // Скачивание страницы в текст
         Downloader html_downloader;
         connect(&html_downloader, &Downloader::onComplete, [=](QVariant data, int downloadType, int error) {
+                                  Q_UNUSED(downloadType)
+                                  Q_UNUSED(error)
             // формирование списка (парсинг)
             auto doc = QGumboDocument::parse(data.toString().toLatin1().data());
             auto root = doc.rootNode();
