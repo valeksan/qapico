@@ -3,7 +3,7 @@
 DataBase::DataBase(QObject *parent) : QObject(parent)
 {
 #ifdef Q_OS_UNIX
-    base_path.setPath(QDir::homePath()+QDir::separator()+".Apico");
+    base_path.setPath(QDir::homePath()+QDir::separator()+".apico");
 #else
     base_path.setPath(QDir::homePath()+QDir::separator()+"Apico");
 #endif
@@ -331,6 +331,7 @@ bool DataBase::openDataBase()
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName(DATABASE_HOSTNAME);
     db.setDatabaseName(base_path.path() + QDir::separator() + DATABASE_NAME);
+    qDebug() << base_path.path() + QDir::separator() + DATABASE_NAME;
     if(db.open()) {
         return true;
     } else {
@@ -384,31 +385,31 @@ bool DataBase::createCurrenciesTable()
 {    
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_CURRENCIES " ("
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"
-                            T_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"
-                            T_CURRENCIES_CALC_SUPPLY " UNSIGNED BIG INT NOT NULL,"
-                            T_CURRENCIES_VOLUME_USD " UNSIGNED BIG INT NOT NULL,"
-                            T_CURRENCIES_VOLUME_BTC " UNSIGNED BIG INT NOT NULL,"
-                            T_CURRENCIES_PRICE_USD " UNSIGNED INTEGER NOT NULL,"
-                            T_CURRENCIES_PRICE_BTC " UNSIGNED INTEGER NOT NULL,"
-                            T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL"
-                            T_CURRENCIES_MANUAL_UPD_DATE " DATE,"
-                            T_CURRENCIES_APP_AREAS_ID " INTEGER,"
-                            T_CURRENCIES_REV_IDEA " TEXT,"
-                            T_CURRENCIES_BASE_PLATFORM_ID " INTEGER,"
-                            T_CURRENCIES_CON_ALG_ID " INTEGER,"
-                            T_CURRENCIES_IS_INTER_COMP " BOOLEAN,"
-                            T_CURRENCIES_IS_WP_IN_CV " BOOLEAN,"
-                            T_CURRENCIES_IS_OP_VACANCIES " BOOLEAN,"
-                            T_CURRENCIES_WP_URL " TEXT,"
-                            T_CURRENCIES_RM_URL " TEXT,"
-                            T_CURRENCIES_SITE_URL " TEXT,"
-                            T_CURRENCIES_CONTACTS_TEL " VARCHAR(30),"
-                            T_CURRENCIES_CONTACTS_MAIL " VARCHAR(100),"
-                            T_CURRENCIES_CONTACTS_ADDRESS " TEXT,"
-                            T_CURRENCIES_CONTACTS_SLACK " VARCHAR(100),"
-                            T_CURRENCIES_CONTACTS_TELEGRAM " VARCHAR(100)"
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "                // 0
+                            T_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"             // 1
+                            T_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"            // 2
+                            T_CURRENCIES_CALC_SUPPLY " UNSIGNED BIG INT NOT NULL,"  // 3
+                            T_CURRENCIES_VOLUME_USD " UNSIGNED BIG INT NOT NULL,"   // 4
+                            T_CURRENCIES_VOLUME_BTC " UNSIGNED BIG INT NOT NULL,"   // 5
+                            T_CURRENCIES_PRICE_USD " UNSIGNED INTEGER NOT NULL,"    // 6
+                            T_CURRENCIES_PRICE_BTC " UNSIGNED INTEGER NOT NULL,"    // 7
+                            T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL"               // 8
+                            T_CURRENCIES_MANUAL_UPD_DATE " DATE,"                   // 9
+                            T_CURRENCIES_APP_AREAS_ID " INTEGER,"                   // 10
+                            T_CURRENCIES_REV_IDEA " TEXT,"                          // 11
+                            T_CURRENCIES_BASE_PLATFORM_ID " INTEGER,"               // 12
+                            T_CURRENCIES_CON_ALG_ID " INTEGER,"                     // 13
+                            T_CURRENCIES_IS_INTER_COMP " BOOLEAN,"                  // 14
+                            T_CURRENCIES_IS_WP_IN_CV " BOOLEAN,"                    // 15
+                            T_CURRENCIES_IS_OP_VACANCIES " BOOLEAN,"                // 16
+                            T_CURRENCIES_WP_URL " TEXT,"                            // 17
+                            T_CURRENCIES_RM_URL " TEXT,"                            // 18
+                            T_CURRENCIES_SITE_URL " TEXT,"                          // 19
+                            T_CURRENCIES_CONTACTS_TEL " VARCHAR(30),"               // 20
+                            T_CURRENCIES_CONTACTS_MAIL " VARCHAR(100),"             // 21
+                            T_CURRENCIES_CONTACTS_ADDRESS " TEXT,"                  // 22
+                            T_CURRENCIES_CONTACTS_SLACK " VARCHAR(100),"            // 23
+                            T_CURRENCIES_CONTACTS_TELEGRAM " VARCHAR(100)"          // 24
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_CURRENCIES;

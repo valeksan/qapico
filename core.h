@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QEventLoop>
+#include <QException>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -15,7 +16,7 @@
 #include <functional>
 #include <experimental/any>
 
-#define STOP_ACTIVE_TASK_DEFAULT_TIMEOUT 1000
+#define STOP_ACTIVE_TASK_DEFAULT_TIMEOUT 5000
 
 template<typename R, typename...Args, typename Class, std::size_t ...N>
 auto bind_placeholders(R(Class::*taskFunction)(Args...), Class *taskObj, std::index_sequence<N...>) { return std::bind(taskFunction, taskObj, std::integral_constant<int, N+1>()...); }
@@ -43,20 +44,24 @@ template<typename T> using get_signature = typename get_signature_impl<T>::type;
 template<typename F> using make_function_type = std::function<get_signature<F> >;
 template<typename F> make_function_type<F> make_function(F &&f) { return make_function_type<F>(std::forward<F>(f)); }
 
-
-template<typename Func>
-bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender, Func signal, int timeout = 30000)
+class CoreException: public QException
 {
-    QEventLoop loop;
-    QTimer timer;
-    timer.setSingleShot(true);
-    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.start(timeout);
-    loop.exec();
-    if(timer.isActive()) return true;
-    else return false;
-}
+public:
+    CoreException(QString message) : m_message(message)
+    {
+        ;
+    }
+    void raise() const { throw *this; }
+    CoreException *clone() const { return new CoreException(*this); }
+
+    QString message() const
+    {
+        return m_message;
+    }
+
+private:
+    QString m_message;
+};
 
 class TaskHelper : public QObject
 {
@@ -93,7 +98,6 @@ private:
 
 signals:
     void finished(QVariant result);
-
 };
 
 class Core : public QObject
@@ -145,8 +149,10 @@ public:
         Q_UNUSED(taskType);
         Q_UNUSED(taskFunction);
         Q_UNUSED(taskGroup);
+        Q_UNUSED(taskStopTimeout);
 
         qDebug() << "Core::registerTask - Not convertible return type";
+        throw CoreException("Not convertible return type");
     }
 
     template <typename F>
@@ -176,7 +182,8 @@ public:
         if(!m_taskHash.contains(taskType))
         {
             qDebug() << "Core::addTask - Task not registred";
-            return;
+            throw CoreException("Task not registred");
+//            return;
         }
         try
         {
@@ -204,7 +211,8 @@ public:
         catch(std::experimental::bad_any_cast)
         {
             qDebug() << "Core::addTask - Bad arguments";
-            return;
+            throw CoreException("Bad arguments");
+//            return;
         }
     }
 
@@ -476,10 +484,24 @@ private:
 signals:
     void finishedTask(long id, int type, QVariantList argsList = QVariantList(), QVariant result = QVariant());
     void startedTask(long id, int type, QVariantList argsList = QVariantList());
-    void terminatedTask(long id, int type, QVariantList argsList = QVariantList());    
+    void terminatedTask(long id, int type, QVariantList argsList = QVariantList());
 
-public slots:    
+public slots:
 
 };
+
+template<typename Func>
+bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender, Func signal, int timeout = 30000)
+{
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.start(timeout);
+    loop.exec();
+    if(timer.isActive()) return true;
+    else return false;
+}
 
 #endif // CORE_H

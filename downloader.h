@@ -12,6 +12,8 @@
 #include <QUrl>
 #include <QDebug>
 
+#include "exts_funcs.h"
+
 #define DownloadAttributeType static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+1)
 #define DownloadAttributeFilename static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+2)
 
@@ -46,7 +48,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;         // менеджер сетевого доступа
 
-    bool isDownloaderPathExists();
+//    bool isDownloaderPathExists();
 
 
 };

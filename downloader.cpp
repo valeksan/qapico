@@ -60,13 +60,13 @@ void Downloader::onResult(QNetworkReply *reply)
     }
 }
 
-bool Downloader::isDownloaderPathExists()
-{
-    QDir home_path = QDir::home();
-    QDir apico_path = QDir(home_path.path()+QDir::separator()+(is_unix?".Apico":"Apico"));
-    QDir download_path = home_path.path()+QDir::separator()+apico_path.path()+QDir::separator()+"Downloads";
-    if(!apico_path.exists()) home_path.mkdir((is_unix?".Apico":"Apico"));
-    if(!download_path.exists() && apico_path.exists()) apico_path.mkdir("Downloads");
-    return download_path.exists();
-}
+//bool Downloader::isDownloaderPathExists()
+//{
+//    QDir home_path = QDir::home();
+//    QDir apico_path = QDir(home_path.path()+QDir::separator()+(is_unix?".Apico":"Apico"));
+//    QDir download_path = home_path.path()+QDir::separator()+apico_path.path()+QDir::separator()+"Downloads";
+//    if(!apico_path.exists()) home_path.mkdir((is_unix?".Apico":"Apico"));
+//    if(!download_path.exists() && apico_path.exists()) apico_path.mkdir("Downloads");
+//    return download_path.exists();
+//}
 
