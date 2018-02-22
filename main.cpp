@@ -8,11 +8,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    QNetworkProxy proxy;
-    proxy.setType(QNetworkProxy::HttpProxy);
-    proxy.setHostName("127.0.0.1");
-    proxy.setPort(3128);    
-    QNetworkProxy::setApplicationProxy(proxy);
+//    QNetworkProxy proxy;
+//    proxy.setType(QNetworkProxy::HttpProxy);
+//    proxy.setHostName("127.0.0.1");
+//    proxy.setPort(3128);
+//    QNetworkProxy::setApplicationProxy(proxy);
 
     return a.exec();
 }

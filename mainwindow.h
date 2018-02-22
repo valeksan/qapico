@@ -37,27 +37,7 @@ private:
     Ui::MainWindow *ui;
     Core *m_pCore;
     DataBase *db;
-    QSqlRelationalTableModel    *modelCurrencies;
-    QSqlRelationalTableModel    *modelRoadmapDates;
-    QSqlRelationalTableModel    *modelTechPool;
-    QSqlRelationalTableModel    *modelGithubPool;
-    QSqlRelationalTableModel    *modelMarketPool;
-    // independent models
-    QSqlRelationalTableModel    *modelTokenAlg;
-    QSqlRelationalTableModel    *modelAppAreas;
-    QSqlRelationalTableModel    *modelTechnologies;
 
-private:
-    /* Формирование моделей реляционных связей */
-    void setupCurrenciesModel   ();
-    void setupRoadmapDatesModel ();
-    void setupTechPoolModel     ();
-    void setupGithubPoolModel   ();
-    void setupMarketPoolModel   ();
-    // independent setup models
-    void setupTokenAlgModel     ();
-    void setupAppAreasModel     ();
-    void setupTechnologiesModel ();
 };
 
 Q_DECLARE_METATYPE(TaskResult)

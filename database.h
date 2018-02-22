@@ -1,12 +1,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-/* examples
- * https://evileg.com/ru/post/67/
- * https://evileg.com/ru/post/62/
-*/
-
-
 #include <QObject>
 #include <QSql>
 #include <QSqlQuery>
@@ -119,6 +113,7 @@ public:
      * */
     void connectToDataBase();
     bool inserIntoCurrenciesTableParseInfo(const QVariantList &data);
+    bool updateIntoCurrenciesTableFlagOpensouceProject(bool flag, QString currencyName);
     bool inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data);
     bool inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data);
     bool inserIntoRoadmapDatesPoolTable(const QVariantList &data);
@@ -128,6 +123,7 @@ public:
     bool inserIntoTechnologiesTable(const QVariantList &data);
     bool inserIntoGithubHistoryPoolTable(const QVariantList &data);
     bool inserIntoMarketsTable(const QVariantList &data);
+
 
 private:
     // Сам объект базы данных, с которым будет производиться работа

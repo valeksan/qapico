@@ -13,13 +13,14 @@ Downloader::Downloader(QObject *parent) : QObject(parent)
     connect(manager, &QNetworkAccessManager::finished, this, &Downloader::onResult);
 }
 
-void Downloader::getData(QUrl url, int downloadType, QString filename)
+void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString filename)
 {
     if(downloadType == D_TYPE_TEXT) {
         QNetworkRequest request;    // Отправляемый запрос
         request.setUrl(url);        // Устанавлвиваем URL в запрос
         request.setAttribute(DownloadAttributeType, QVariant::fromValue(static_cast<int>(D_TYPE_TEXT)));
         request.setAttribute(DownloadAttributeFilename, QVariant::fromValue(filename));
+        request.setAttribute(DownloadAttributeArgs, QVariant::fromValue(args));
         manager->get(request);      // Выполняем запрос
         qDebug() << "getData ...";
     }
@@ -29,16 +30,17 @@ void Downloader::onResult(QNetworkReply *reply)
 {
     qDebug() << "onResult ...";
     int downloadType = reply->attribute(DownloadAttributeType).toInt();
+    auto args = reply->attribute(DownloadAttributeArgs).value<QVariantList>();
     // Если в процесе получения данных произошла ошибка
     if(reply->error()){
         // Сообщаем об этом и показываем информацию об ошибках
         qDebug() << "ERROR: " << reply->errorString();
-        emit onComplete("", downloadType, static_cast<int>(reply->error()));
+        emit onComplete("", downloadType, static_cast<int>(reply->error()), args);
     } else {
         if(downloadType == D_TYPE_TEXT) {
             // В противном случае считываем текст
             QString text = reply->readAll();
-            emit onComplete(text, downloadType, D_NO_ERR);
+            emit onComplete(text, downloadType, D_NO_ERR, args);
 
         } else if(downloadType == D_TYPE_BINARY) {
             // В противном случае создаём объект для работы с файлом
@@ -50,23 +52,12 @@ void Downloader::onResult(QNetworkReply *reply)
                     file->write(reply->readAll());  // ... и записываем всю информацию со страницы в файл
                     file->close();                  // закрываем файл
                     qDebug() << "Downloading is completed";
-                    emit onComplete(file->fileName(), downloadType, D_NO_ERR); // Посылаем сигнал о завершении получения файла
+                    emit onComplete(file->fileName(), downloadType, D_NO_ERR, args); // Посылаем сигнал о завершении получения файла
                 }
             } else {
                 qDebug() << "ERROR: " << "Disk access error";
-                emit onComplete("", downloadType, D_DISK_ACCESS_ERR);
+                emit onComplete("", downloadType, D_DISK_ACCESS_ERR, args);
             }
         }
     }
 }
-
-//bool Downloader::isDownloaderPathExists()
-//{
-//    QDir home_path = QDir::home();
-//    QDir apico_path = QDir(home_path.path()+QDir::separator()+(is_unix?".Apico":"Apico"));
-//    QDir download_path = home_path.path()+QDir::separator()+apico_path.path()+QDir::separator()+"Downloads";
-//    if(!apico_path.exists()) home_path.mkdir((is_unix?".Apico":"Apico"));
-//    if(!download_path.exists() && apico_path.exists()) apico_path.mkdir("Downloads");
-//    return download_path.exists();
-//}
-

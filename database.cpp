@@ -35,7 +35,8 @@ bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
                   T_CURRENCIES_VOLUME_BTC ", "
                   T_CURRENCIES_PRICE_USD ", "
                   T_CURRENCIES_PRICE_BTC ", "
-                  T_CURRENCIES_MINEABLE " ) "
+                  T_CURRENCIES_MINEABLE ", "
+                  T_CURRENCIES_IS_OPENSOURCE_PROJECT ") "
                   "VALUES (:T_CURRENCIES_NAME, "
                                         ":T_CURRENCIES_SYMBOL, "
                                         ":T_CURRENCIES_CALC_SUPPLY, "
@@ -44,7 +45,7 @@ bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
                                         ":T_CURRENCIES_PRICE_USD, "
                                         ":T_CURRENCIES_PRICE_BTC, "
                                         ":T_CURRENCIES_MINEABLE, "
-                                        ":T_CURRENCIES_IS_OPENSOURCE_PROJECT)");
+                                        ":T_CURRENCIES_IS_OPENSOURCE_PROJECT) ");
     query.bindValue(":T_CURRENCIES_NAME",           data[0].toString());
     query.bindValue(":T_CURRENCIES_SYMBOL",         data[1].toString());
     query.bindValue(":T_CURRENCIES_CALC_SUPPLY",    data[2].toDouble());
@@ -55,7 +56,27 @@ bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
     query.bindValue(":T_CURRENCIES_MINEABLE",       data[7].toBool());
     query.bindValue(":T_CURRENCIES_IS_OPENSOURCE_PROJECT",       data[8].toBool());
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES;
+        qDebug() << "error insert into " << T_CURRENCIES << " : MAIN PARSE";
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
+
+bool DataBase::updateIntoCurrenciesTableFlagOpensouceProject(bool flag, QString currencyName)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE "
+                  T_CURRENCIES
+                  " SET "
+                  T_CURRENCIES_IS_OPENSOURCE_PROJECT " = :T_CURRENCIES_IS_OPENSOURCE_PROJECT"
+                  " WHERE " T_CURRENCIES_NAME " = :currencyName;");
+    query.bindValue(":T_CURRENCIES_IS_OPENSOURCE_PROJECT", flag);
+    query.bindValue(":currencyName", currencyName);
+    if(!query.exec()) {
+        qDebug() << "error update into " << T_CURRENCIES << " : IS_OPENSOURCE_PROJECT : " << flag;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -101,7 +122,7 @@ bool DataBase::inserIntoCurrenciesTableManualEditContentInfo(const QVariantList 
     query.bindValue(":T_CURRENCIES_RM_URL",             data[9].toString());
     query.bindValue(":T_CURRENCIES_SITE_URL",           data[10].toString());
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES << " : CONTENT_FIELDS";;
+        qDebug() << "error insert into " << T_CURRENCIES << " : CONTENT_FIELDS";
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -395,8 +416,8 @@ bool DataBase::createCurrenciesTable()
                             T_CURRENCIES_VOLUME_BTC " REAL NOT NULL,"               // 5
                             T_CURRENCIES_PRICE_USD " REAL NOT NULL,"                // 6
                             T_CURRENCIES_PRICE_BTC " REAL NOT NULL,"                // 7
-                            T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL"               // 8
-                            T_CURRENCIES_IS_OPENSOURCE_PROJECT " BOOLEAN NOT NULL"  // 9
+                            T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL,"              // 8
+                            T_CURRENCIES_IS_OPENSOURCE_PROJECT " BOOLEAN,"          // 9
                             T_CURRENCIES_MANUAL_UPD_DATE " DATE,"                   // 10
                             T_CURRENCIES_APP_AREAS_ID " INTEGER,"                   // 11
                             T_CURRENCIES_REV_IDEA " TEXT,"                          // 12
@@ -484,7 +505,7 @@ bool DataBase::createDevInfoTable()
     if(!query.exec( "CREATE TABLE " T_DEVINFO " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             T_DEVINFO_TEAM_SIZE " INTEGER NOT NULL,"
-                            T_DEVINFO_START_DATE " INTEGER NOT NULL"
+                            T_DEVINFO_START_DATE " INTEGER NOT NULL,"
                             T_DEVINFO_LANGUAGES_USE " TEXT NOT NULL"
                         " )"
                     )) {

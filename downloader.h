@@ -1,8 +1,6 @@
 #ifndef DOWNLOADER_H
 #define DOWNLOADER_H
 
-// modify from https://evileg.com/ru/post/109/
-
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -16,6 +14,7 @@
 
 #define DownloadAttributeType static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+1)
 #define DownloadAttributeFilename static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+2)
+#define DownloadAttributeArgs static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+3)
 
 enum DownloadType
 {
@@ -39,17 +38,14 @@ public:
     explicit Downloader(QObject *parent = nullptr);
 
 signals:
-    void onComplete(QVariant data, int downloadType, int error);
+    void onComplete(QVariant data, int downloadType, int error, QVariantList args);
 
 public slots:
-    void getData(QUrl url, int downloadType = D_TYPE_TEXT, QString filename = ""); // Метод инициализации запроса на получение данных
+    void getData(QUrl url, int downloadType = D_TYPE_TEXT, QVariantList args = QVariantList(), QString filename = ""); // Метод инициализации запроса на получение данных
     void onResult(QNetworkReply *reply);    // Слот обработки ответа о полученных данных
 
 private:
     QNetworkAccessManager *manager;         // менеджер сетевого доступа
-
-//    bool isDownloaderPathExists();
-
 
 };
 
