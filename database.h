@@ -31,6 +31,7 @@
 #define T_CURRENCIES_PRICE_USD          "PriceUsd"
 #define T_CURRENCIES_PRICE_BTC          "PriceBtc"
 #define T_CURRENCIES_MINEABLE           "Mineable"
+#define T_CURRENCIES_IS_OPENSOURCE_PROJECT  "IsOpensourceProject"
 // - manual edit fields
 #define T_CURRENCIES_MANUAL_UPD_DATE    "ManualUpdateDate"
 #define T_CURRENCIES_APP_AREAS_ID       "AppAreas_id"

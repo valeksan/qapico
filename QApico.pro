@@ -29,14 +29,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     downloader.cpp \
-    database.cpp
+    database.cpp \
+    exts_funcs.cpp
 
 HEADERS += \
         mainwindow.h \
     core.h \
     downloader.h \
     taskresult.h \
-    database.h
+    database.h \
+    exts_funcs.h
 
 FORMS += \
         mainwindow.ui

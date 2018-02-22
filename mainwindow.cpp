@@ -43,9 +43,25 @@ MainWindow::MainWindow(QWidget *parent) :
                 auto doc = QGumboDocument::parse(data.toString().toLatin1().data());
                 auto root = doc.rootNode();
                 auto tbody = root.getElementsByTagName(HtmlTag::TBODY).front();
-                auto currency_nodes = tbody.getElementsByTagName(HtmlTag::TR);
+                auto currency_nodes = tbody.getElementsByTagName(HtmlTag::TR);                
                 for(unsigned int index_node = 0; index_node < currency_nodes.size(); index_node++) {
-                    //
+                    auto table_nodes = currency_nodes.at(index_node).getElementsByTagName(HtmlTag::TD);
+                    // TD(1): get curency name
+                    auto currency_td1_a_tag = table_nodes.at(1).getElementsByTagName(HtmlTag::SPAN).front().getElementsByTagName(HtmlTag::A).front();
+                    QString currency_name = currency_td1_a_tag.getAttribute("href").section("/", 2, 2);
+                    currency_name = currency_name.left(1).toUpper()+currency_name.mid(1);
+                    QString symbol_name = currency_td1_a_tag.innerText();
+                    qDebug() << currency_name << " : " << symbol_name;
+                    // TD(4): get currency prices
+                    auto currency_td4_a_tag = table_nodes.at(4).getElementsByTagName(HtmlTag::A).front();
+                    double price_usd = currency_td4_a_tag.getAttribute("data-usd").toDouble();
+                    double price_btc = currency_td4_a_tag.getAttribute("data-btc").toDouble();
+                    qDebug() << "price_usd:" << price_usd << " price_btc:" << price_btc;
+                    // TD(5): get supply and mineable flag
+                    auto currency_td5_a_tag = table_nodes.at(5).getElementsByTagName(HtmlTag::A).front();
+                    bool is_mineable = !table_nodes.at(5).innerText().contains("*");
+                    unsigned long long calculating_supply = currency_td5_a_tag.getAttribute("data-supply").toULongLong();
+                    qDebug() << "calculating_supply:" << calculating_supply << " is_mineable:" << is_mineable;
                 }
                 qDebug() << "SIZE_TR: " << currency_nodes.size();
                 //qDebug() << data.toString();

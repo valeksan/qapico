@@ -43,15 +43,17 @@ bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
                                         ":T_CURRENCIES_VOLUME_BTC, "
                                         ":T_CURRENCIES_PRICE_USD, "
                                         ":T_CURRENCIES_PRICE_BTC, "
-                                        ":T_CURRENCIES_MINEABLE)");
+                                        ":T_CURRENCIES_MINEABLE, "
+                                        ":T_CURRENCIES_IS_OPENSOURCE_PROJECT)");
     query.bindValue(":T_CURRENCIES_NAME",           data[0].toString());
     query.bindValue(":T_CURRENCIES_SYMBOL",         data[1].toString());
-    query.bindValue(":T_CURRENCIES_CALC_SUPPLY",    data[2].toULongLong());
-    query.bindValue(":T_CURRENCIES_VOLUME_USD",     data[3].toULongLong());
-    query.bindValue(":T_CURRENCIES_VOLUME_BTC",     data[4].toULongLong());
-    query.bindValue(":T_CURRENCIES_PRICE_USD",      data[5].toUInt());
-    query.bindValue(":T_CURRENCIES_PRICE_BTC",      data[6].toUInt());
+    query.bindValue(":T_CURRENCIES_CALC_SUPPLY",    data[2].toDouble());
+    query.bindValue(":T_CURRENCIES_VOLUME_USD",     data[3].toDouble());
+    query.bindValue(":T_CURRENCIES_VOLUME_BTC",     data[4].toDouble());
+    query.bindValue(":T_CURRENCIES_PRICE_USD",      data[5].toDouble());
+    query.bindValue(":T_CURRENCIES_PRICE_BTC",      data[6].toDouble());
     query.bindValue(":T_CURRENCIES_MINEABLE",       data[7].toBool());
+    query.bindValue(":T_CURRENCIES_IS_OPENSOURCE_PROJECT",       data[8].toBool());
     if(!query.exec()) {
         qDebug() << "error insert into " << T_CURRENCIES;
         qDebug() << query.lastError().text();
@@ -307,10 +309,10 @@ bool DataBase::inserIntoMarketsTable(const QVariantList &data)
     query.bindValue(":T_MARKETSPOOL_CURRENCY_ID",       data[0].toInt());
     query.bindValue(":T_MARKETSPOOL_MARKET",            data[1].toString());
     query.bindValue(":T_MARKETSPOOL_PAIR",              data[2].toString());
-    query.bindValue(":T_MARKETSPOOL_VOL_24",            data[3].toInt());
-    query.bindValue(":T_MARKETSPOOL_VOL_P",             data[4].toInt());
-    query.bindValue(":T_MARKETSPOOL_PRICE_USD",         data[5].toInt());
-    query.bindValue(":T_MARKETSPOOL_PRICE_BTC",         data[6].toInt());
+    query.bindValue(":T_MARKETSPOOL_VOL_24",            data[3].toDouble());
+    query.bindValue(":T_MARKETSPOOL_VOL_P",             data[4].toDouble());
+    query.bindValue(":T_MARKETSPOOL_PRICE_USD",         data[5].toDouble());
+    query.bindValue(":T_MARKETSPOOL_PRICE_BTC",         data[6].toDouble());
     if(!query.exec()) {
         qDebug() << "error insert into " << T_MARKETSPOOL;
         qDebug() << query.lastError().text();
@@ -389,27 +391,28 @@ bool DataBase::createCurrenciesTable()
                             T_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"             // 1
                             T_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"            // 2
                             T_CURRENCIES_CALC_SUPPLY " UNSIGNED BIG INT NOT NULL,"  // 3
-                            T_CURRENCIES_VOLUME_USD " UNSIGNED BIG INT NOT NULL,"   // 4
-                            T_CURRENCIES_VOLUME_BTC " UNSIGNED BIG INT NOT NULL,"   // 5
-                            T_CURRENCIES_PRICE_USD " UNSIGNED INTEGER NOT NULL,"    // 6
-                            T_CURRENCIES_PRICE_BTC " UNSIGNED INTEGER NOT NULL,"    // 7
+                            T_CURRENCIES_VOLUME_USD " REAL NOT NULL,"               // 4
+                            T_CURRENCIES_VOLUME_BTC " REAL NOT NULL,"               // 5
+                            T_CURRENCIES_PRICE_USD " REAL NOT NULL,"                // 6
+                            T_CURRENCIES_PRICE_BTC " REAL NOT NULL,"                // 7
                             T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL"               // 8
-                            T_CURRENCIES_MANUAL_UPD_DATE " DATE,"                   // 9
-                            T_CURRENCIES_APP_AREAS_ID " INTEGER,"                   // 10
-                            T_CURRENCIES_REV_IDEA " TEXT,"                          // 11
-                            T_CURRENCIES_BASE_PLATFORM_ID " INTEGER,"               // 12
-                            T_CURRENCIES_CON_ALG_ID " INTEGER,"                     // 13
-                            T_CURRENCIES_IS_INTER_COMP " BOOLEAN,"                  // 14
-                            T_CURRENCIES_IS_WP_IN_CV " BOOLEAN,"                    // 15
-                            T_CURRENCIES_IS_OP_VACANCIES " BOOLEAN,"                // 16
-                            T_CURRENCIES_WP_URL " TEXT,"                            // 17
-                            T_CURRENCIES_RM_URL " TEXT,"                            // 18
-                            T_CURRENCIES_SITE_URL " TEXT,"                          // 19
-                            T_CURRENCIES_CONTACTS_TEL " VARCHAR(30),"               // 20
-                            T_CURRENCIES_CONTACTS_MAIL " VARCHAR(100),"             // 21
-                            T_CURRENCIES_CONTACTS_ADDRESS " TEXT,"                  // 22
-                            T_CURRENCIES_CONTACTS_SLACK " VARCHAR(100),"            // 23
-                            T_CURRENCIES_CONTACTS_TELEGRAM " VARCHAR(100)"          // 24
+                            T_CURRENCIES_IS_OPENSOURCE_PROJECT " BOOLEAN NOT NULL"  // 9
+                            T_CURRENCIES_MANUAL_UPD_DATE " DATE,"                   // 10
+                            T_CURRENCIES_APP_AREAS_ID " INTEGER,"                   // 11
+                            T_CURRENCIES_REV_IDEA " TEXT,"                          // 12
+                            T_CURRENCIES_BASE_PLATFORM_ID " INTEGER,"               // 13
+                            T_CURRENCIES_CON_ALG_ID " INTEGER,"                     // 14
+                            T_CURRENCIES_IS_INTER_COMP " BOOLEAN,"                  // 15
+                            T_CURRENCIES_IS_WP_IN_CV " BOOLEAN,"                    // 16
+                            T_CURRENCIES_IS_OP_VACANCIES " BOOLEAN,"                // 17
+                            T_CURRENCIES_WP_URL " TEXT,"                            // 18
+                            T_CURRENCIES_RM_URL " TEXT,"                            // 19
+                            T_CURRENCIES_SITE_URL " TEXT,"                          // 20
+                            T_CURRENCIES_CONTACTS_TEL " VARCHAR(30),"               // 21
+                            T_CURRENCIES_CONTACTS_MAIL " VARCHAR(100),"             // 22
+                            T_CURRENCIES_CONTACTS_ADDRESS " TEXT,"                  // 23
+                            T_CURRENCIES_CONTACTS_SLACK " VARCHAR(100),"            // 24
+                            T_CURRENCIES_CONTACTS_TELEGRAM " VARCHAR(100)"          // 25
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_CURRENCIES;
@@ -568,10 +571,10 @@ bool DataBase::createMarketsTable()
                             T_MARKETSPOOL_CURRENCY_ID " INTEGER NOT NULL,"
                             T_MARKETSPOOL_MARKET " VARCHAR(20) NOT NULL,"
                             T_MARKETSPOOL_PAIR " VARCHAR(20) NOT NULL,"
-                            T_MARKETSPOOL_VOL_24 " UNSIGNED BIG INT NOT NULL,"
-                            T_MARKETSPOOL_VOL_P " INTEGER NOT NULL,"
-                            T_MARKETSPOOL_PRICE_USD " INTEGER NOT NULL,"
-                            T_MARKETSPOOL_PRICE_BTC " INTEGER NOT NULL"
+                            T_MARKETSPOOL_VOL_24 " REAL NOT NULL,"
+                            T_MARKETSPOOL_VOL_P " REAL NOT NULL,"
+                            T_MARKETSPOOL_PRICE_USD " REAL NOT NULL,"
+                            T_MARKETSPOOL_PRICE_BTC " REAL NOT NULL"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_MARKETSPOOL;
