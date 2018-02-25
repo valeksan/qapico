@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QtSql>
+#include <QAtomicPointer>
+
 #include <QDebug>
 
 #include "core.h"
@@ -37,6 +39,9 @@ private:
     Ui::MainWindow *ui;
     Core *m_pCore;
     DataBase *db;
+
+    QHash<QString,QUrl> m_currenciesPagesForParse;
+    QMutex m_mutex;
 
 };
 

@@ -8,21 +8,47 @@ Downloader::Downloader(QObject *parent) : QObject(parent)
     is_unix = false;
 #endif
     // Инициализируем менеджер ...
-    manager = new QNetworkAccessManager();
+    m_pManager = new QNetworkAccessManager();
+
     // ... и подключаем сигнал о завершении получения данных к обработчику полученного ответа
-    connect(manager, &QNetworkAccessManager::finished, this, &Downloader::onResult);
+    connect(m_pManager, &QNetworkAccessManager::finished, this, &Downloader::onResult);
+
+    m_downloadListSize = 0;
 }
 
 void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString filename)
 {
-    if(downloadType == D_TYPE_TEXT) {
-        QNetworkRequest request;    // Отправляемый запрос
-        request.setUrl(url);        // Устанавлвиваем URL в запрос
-        request.setAttribute(DownloadAttributeType, QVariant::fromValue(static_cast<int>(D_TYPE_TEXT)));
-        request.setAttribute(DownloadAttributeFilename, QVariant::fromValue(filename));
-        request.setAttribute(DownloadAttributeArgs, QVariant::fromValue(args));
-        manager->get(request);      // Выполняем запрос
-        qDebug() << "getData ...";
+    QNetworkRequest request;    // Отправляемый запрос
+    request.setUrl(url);        // Устанавлвиваем URL в запрос
+    request.setAttribute(DownloadAttributeType, QVariant::fromValue(static_cast<int>(downloadType)));
+    request.setAttribute(DownloadAttributeFilename, QVariant::fromValue(filename));
+    request.setAttribute(DownloadAttributeArgs, QVariant::fromValue(args));
+    //request.setAttribute(DownloadAttributeIsListItem, args.at(0).ty QVariant::fromValue(args));
+    if(args.size() > 0) {
+        if(QString(args.first().typeName()) == "DownloaderArg") {
+            if(args.first().value<DownloaderArg>().type() == DownloaderArg::TYPE_DOWNLOAD_INDEX) {
+                request.setAttribute(DownloadAttributeIsListItem, true);
+            } else {
+                request.setAttribute(DownloadAttributeIsListItem, false);
+            }
+            args.removeFirst();
+        } else {
+            request.setAttribute(DownloadAttributeIsListItem, false);
+        }
+    } else {
+        request.setAttribute(DownloadAttributeIsListItem, false);
+    }
+    m_pManager->get(request);      // Выполняем запрос
+    qDebug() << "getData ..." << request.url();
+}
+
+void Downloader::getDataList(QList<QUrl> urls, int downloadType, QVariantList args, QString filename)
+{
+    if(m_downloadListSize > 0) return;
+
+    m_downloadListSize = urls.size();
+    for(int sourceIndex = 0; sourceIndex < urls.size(); sourceIndex++) {
+        getData(urls.at(sourceIndex), downloadType, (QVariantList() << QVariant::fromValue(DownloaderArg(DownloaderArg::TYPE_DOWNLOAD_INDEX, QVariant::fromValue(sourceIndex))) << args), filename);
     }
 }
 
@@ -31,16 +57,26 @@ void Downloader::onResult(QNetworkReply *reply)
     qDebug() << "onResult ...";
     int downloadType = reply->attribute(DownloadAttributeType).toInt();
     auto args = reply->attribute(DownloadAttributeArgs).value<QVariantList>();
+    bool isListItem = reply->attribute(DownloadAttributeIsListItem).toBool();
+    qDebug() << isListItem;
     // Если в процесе получения данных произошла ошибка
     if(reply->error()){
         // Сообщаем об этом и показываем информацию об ошибках
         qDebug() << "ERROR: " << reply->errorString();
-        emit onComplete("", downloadType, static_cast<int>(reply->error()), args);
+        if(!isListItem) {
+            emit onComplete("", downloadType, static_cast<int>(reply->error()), args);
+        } else {
+            appendDownloadResult("", downloadType, D_REPLY_ERR, (QVariantList() << args << QVariant::fromValue(QPair<QNetworkReply::NetworkError,QString>(reply->error(),reply->errorString()))));
+        }
     } else {
         if(downloadType == D_TYPE_TEXT) {
             // В противном случае считываем текст
             QString text = reply->readAll();
-            emit onComplete(text, downloadType, D_NO_ERR, args);
+            if(!isListItem) {
+                emit onComplete(text, downloadType, D_NO_ERR, args);
+            } else {
+                appendDownloadResult(text, downloadType, D_NO_ERR, args);
+            }
 
         } else if(downloadType == D_TYPE_BINARY) {
             // В противном случае создаём объект для работы с файлом
@@ -52,11 +88,19 @@ void Downloader::onResult(QNetworkReply *reply)
                     file->write(reply->readAll());  // ... и записываем всю информацию со страницы в файл
                     file->close();                  // закрываем файл
                     qDebug() << "Downloading is completed";
-                    emit onComplete(file->fileName(), downloadType, D_NO_ERR, args); // Посылаем сигнал о завершении получения файла
+                    if(!isListItem) {
+                        emit onComplete(file->fileName(), downloadType, D_NO_ERR, args); // Посылаем сигнал о завершении получения файла
+                    } else {
+                        appendDownloadResult(file->fileName(), downloadType, D_NO_ERR, args);
+                    }
                 }
             } else {
                 qDebug() << "ERROR: " << "Disk access error";
-                emit onComplete("", downloadType, D_DISK_ACCESS_ERR, args);
+                if(!isListItem) {
+                    emit onComplete("", downloadType, D_DISK_ACCESS_ERR, args);
+                } else {
+                    appendDownloadResult("", downloadType, D_DISK_ACCESS_ERR, args);
+                }
             }
         }
     }

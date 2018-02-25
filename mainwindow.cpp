@@ -26,9 +26,13 @@ MainWindow::MainWindow(QWidget *parent) :
             TaskResult result;
             // Скачивание страницы в текст
             Downloader html_downloader;
-            connect(&html_downloader, &Downloader::onComplete, [=](QVariant data, int downloadType, int error, QVariantList args) {
-                                      Q_UNUSED(downloadType)
-                                      Q_UNUSED(error)
+            int downloadTypeD = 0;
+            int errorD = false;
+            QVariantList argsD;
+            connect(&html_downloader, &Downloader::onComplete, [=,&downloadTypeD,&errorD,&argsD](QVariant data, int downloadType, int error, QVariantList args) {
+                downloadTypeD = downloadType;
+                errorD = error;
+                argsD = args;
                 // формирование списка (парсинг)
                 auto doc = QGumboDocument::parse(data.toString().toLatin1().data());
                 auto root = doc.rootNode();
@@ -38,7 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
                     auto table_nodes = currency_nodes.at(index_node).getElementsByTagName(HtmlTag::TD);
                     // TD(1): get curency name
                     auto currency_td1_a_tag = table_nodes.at(1).getElementsByTagName(HtmlTag::SPAN).front().getElementsByTagName(HtmlTag::A).front();
-                    QString currency_name = currency_td1_a_tag.getAttribute("href").section("/", 2, 2);
+                    QString currency_href = currency_td1_a_tag.getAttribute("href");
+                    QUrl currency_url = QUrl(QString("https://coinmarketcap.com%1").arg(currency_href));
+                    QString currency_name = currency_href.section("/", 2, 2);
                     currency_name = currency_name.left(1).toUpper()+currency_name.mid(1);
                     QString symbol_name = currency_td1_a_tag.innerText();
                     qDebug() << currency_name << " : " << symbol_name;
@@ -71,12 +77,24 @@ MainWindow::MainWindow(QWidget *parent) :
                         volume_btc = nodes_volume_span.front().getAttribute("data-btc").toDouble();
                     }
                     qDebug() << "volume_usd:" << volume_usd << " volume_btc:" << volume_btc;
+                    m_mutex.lock();
+                    m_currenciesPagesForParse.insert(currency_name, currency_url); //.append(QPair<QString,QUrl>(currency_name, currency_url));
+                    m_mutex.unlock();
                 }
                 qDebug() << "SIZE_TR: " << currency_nodes.size();
                 //qDebug() << data.toString();
             });
             html_downloader.getData(QUrl("https://coinmarketcap.com/all/views/all/"), D_TYPE_TEXT);
-            waitSignal(&html_downloader, &Downloader::onComplete, 10000);
+            bool complete_parse_main_page = waitSignal(&html_downloader, &Downloader::onComplete, 10000);
+            bool complete_parse_currencies_pages = false;
+            if(complete_parse_main_page && errorD == D_NO_ERR) {
+                connect(&html_downloader, &Downloader::onCompleteList, [=](QList<QSharedPointer<DownloadResult> > results) {
+                    //
+                    qDebug() << "AAAAAAAAAAAAA THIS WORK!!! size:" << results.size();
+                });
+                html_downloader.getDataList(m_currenciesPagesForParse.values(), downloadTypeD, argsD);
+                complete_parse_currencies_pages = waitSignal(&html_downloader, &Downloader::onCompleteList, 10000);
+            }
             qDebug() << "UPDATE COMPLETE";
             return result;
         }, 0, 7000 /* Таймаут 7 сек. */);

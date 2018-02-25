@@ -21,7 +21,6 @@ public:
     bool flag_show_output_msg;
     QString text_output_msg;
     QString text_output_title;
-
 };
 
 #endif // TASKRESULT_H
