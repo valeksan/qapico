@@ -30,7 +30,8 @@ SOURCES += \
         mainwindow.cpp \
     downloader.cpp \
     database.cpp \
-    exts_funcs.cpp
+    exts_funcs.cpp \
+    parser.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,7 +39,8 @@ HEADERS += \
     downloader.h \
     taskresult.h \
     database.h \
-    exts_funcs.h
+    exts_funcs.h \
+    parser.h
 
 FORMS += \
         mainwindow.ui

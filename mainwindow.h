@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QtSql>
-#include <QAtomicPointer>
 
 #include <QDebug>
 
@@ -11,9 +10,6 @@
 #include "downloader.h"
 #include "taskresult.h"
 #include "database.h"
-
-#include <qgumbodocument.h>
-#include <qgumbonode.h>
 
 namespace Ui {
 class MainWindow;
