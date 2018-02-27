@@ -29,3 +29,18 @@ bool isAppPathExists()
     if(!apico_path.exists()) home_path.mkdir((is_unix ? ".apico" : "Apico"));
     return apico_path.exists();
 }
+
+
+template<typename Func>
+bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender, Func signal, int timeout)
+{
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.start(timeout);
+    loop.exec();
+    if(timer.isActive()) return true;
+    else return false;
+}

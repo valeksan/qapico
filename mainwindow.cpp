@@ -11,15 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Первым делом необходимо создать объект для работы с базой данных
      * и инициализировать подключение к базе данных
-     * */
-    if(!isAppPathExists()) {
-        qCritical() << "Missing application directory, and could not create it! (Access)";
-        return;
-    }
+     * */    
     db = new DataBase();
     db->connectToDataBase();
 
-    /* Регистрация нужных задач для выполнения ядром (мультипотоковым менеджером задач) */
+    /* Регистрация нужных задач для выполнения ядром (мультипотоковым менеджером задач) *
     try {
         m_pCore->registerTask(Tasks::TASK_UPDATE, [this]() -> TaskResult
         {
@@ -97,12 +93,14 @@ MainWindow::MainWindow(QWidget *parent) :
             }
             qDebug() << "UPDATE COMPLETE";
             return result;
-        }, 0, 7000 /* Таймаут 7 сек. */);
+        }, 0, 7000); // Таймаут 7 сек.
     } catch (const CoreException &ex) {
         qDebug() << ex.message();
     }
+*/
 
 }
+
 
 MainWindow::~MainWindow()
 {

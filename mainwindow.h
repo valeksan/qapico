@@ -6,9 +6,6 @@
 
 #include <QDebug>
 
-#include "core.h"
-#include "downloader.h"
-#include "taskresult.h"
 #include "database.h"
 
 namespace Ui {
@@ -33,11 +30,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Core *m_pCore;
     DataBase *db;
-
-    QHash<QString,QUrl> m_currenciesPagesForParse;
-    QMutex m_mutex;
 
 };
 

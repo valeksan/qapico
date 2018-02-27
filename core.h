@@ -5,7 +5,6 @@
 #include <QQueue>
 #include <QDebug>
 #include <QTimer>
-#include <QEventLoop>
 #include <QException>
 
 #ifdef Q_OS_WIN
@@ -472,6 +471,8 @@ private:
                 startTask(pQueuedTask);
             }
         }
+
+        if(!isActive()) emit finishedAllTasks();
     }
 
     QHash<int, TaskInfo> m_taskHash;
@@ -485,23 +486,23 @@ signals:
     void finishedTask(long id, int type, QVariantList argsList = QVariantList(), QVariant result = QVariant());
     void startedTask(long id, int type, QVariantList argsList = QVariantList());
     void terminatedTask(long id, int type, QVariantList argsList = QVariantList());
+    void finishedAllTasks();
 
 public slots:
 
-};
+    bool isTaskAdded(int taskType) {
+        foreach(QSharedPointer<Task> pTask, m_activeTaskList)
+            if(pTask->m_type == taskType)
+                return true;
+        foreach(QSharedPointer<Task> pTask, m_queuedTaskList)
+            if(pTask->m_type == taskType)
+                return true;
+        return false;
+    }
+    bool isActive() {
+        return (!m_activeTaskList.isEmpty() || !m_queuedTaskList.isEmpty());
+    }
 
-template<typename Func>
-bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender, Func signal, int timeout = 30000)
-{
-    QEventLoop loop;
-    QTimer timer;
-    timer.setSingleShot(true);
-    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.start(timeout);
-    loop.exec();
-    if(timer.isActive()) return true;
-    else return false;
-}
+};
 
 #endif // CORE_H

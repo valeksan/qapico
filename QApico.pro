@@ -31,16 +31,17 @@ SOURCES += \
     downloader.cpp \
     database.cpp \
     exts_funcs.cpp \
-    parser.cpp
+    parser.cpp \
+    parserresult.cpp
 
 HEADERS += \
         mainwindow.h \
     core.h \
     downloader.h \
-    taskresult.h \
     database.h \
     exts_funcs.h \
-    parser.h
+    parser.h \
+    parserresult.h
 
 FORMS += \
         mainwindow.ui

@@ -8,12 +8,21 @@ Downloader::Downloader(QObject *parent) : QObject(parent)
     is_unix = false;
 #endif
     // Инициализируем менеджер ...
-    m_pManager = new QNetworkAccessManager();
+    if(!m_pManager) {
+        m_pManager = new QNetworkAccessManager();
+    }
 
     // ... и подключаем сигнал о завершении получения данных к обработчику полученного ответа
     connect(m_pManager, &QNetworkAccessManager::finished, this, &Downloader::onResult);
 
+    m_maxDownloadThreads = 6;
     m_downloadListSize = 0;
+}
+
+Downloader::Downloader(QNetworkAccessManager *manager, QObject *parent)
+{
+    m_pManager = manager;
+    this->Downloader(parent);
 }
 
 void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString filename)
@@ -64,16 +73,16 @@ void Downloader::onResult(QNetworkReply *reply)
         // Сообщаем об этом и показываем информацию об ошибках
         qDebug() << "ERROR: " << reply->errorString();
         if(!isListItem) {
-            emit onComplete("", downloadType, static_cast<int>(reply->error()), args);
+            emit complete("", downloadType, static_cast<int>(reply->error()), args);
         } else {
             appendDownloadResult("", downloadType, D_REPLY_ERR, (QVariantList() << args << QVariant::fromValue(QPair<QNetworkReply::NetworkError,QString>(reply->error(),reply->errorString()))));
         }
     } else {
         if(downloadType == D_TYPE_TEXT) {
             // В противном случае считываем текст
-            QString text = reply->readAll();
+            QByteArray text = reply->readAll();
             if(!isListItem) {
-                emit onComplete(text, downloadType, D_NO_ERR, args);
+                emit complete(text, downloadType, D_NO_ERR, args);
             } else {
                 appendDownloadResult(text, downloadType, D_NO_ERR, args);
             }
@@ -84,12 +93,12 @@ void Downloader::onResult(QNetworkReply *reply)
             if(isDownloaderPathExists()) {
                 QFile *file = new QFile(QDir::homePath()+QDir::separator()+(is_unix?".Apico":"Apico")+QDir::separator()+"Downloads"+QDir::separator()+(filename.isEmpty()?"noname":filename));
                 // Создаём файл или открываем его на перезапись ...
-                if(file->open(QFile::WriteOnly)){
+                if(file->open(QFile::WriteOnly)) {
                     file->write(reply->readAll());  // ... и записываем всю информацию со страницы в файл
                     file->close();                  // закрываем файл
                     qDebug() << "Downloading is completed";
                     if(!isListItem) {
-                        emit onComplete(file->fileName(), downloadType, D_NO_ERR, args); // Посылаем сигнал о завершении получения файла
+                        emit complete(file->fileName(), downloadType, D_NO_ERR, args); // Посылаем сигнал о завершении получения файла
                     } else {
                         appendDownloadResult(file->fileName(), downloadType, D_NO_ERR, args);
                     }
@@ -97,11 +106,16 @@ void Downloader::onResult(QNetworkReply *reply)
             } else {
                 qDebug() << "ERROR: " << "Disk access error";
                 if(!isListItem) {
-                    emit onComplete("", downloadType, D_DISK_ACCESS_ERR, args);
+                    emit complete("", downloadType, D_DISK_ACCESS_ERR, args);
                 } else {
                     appendDownloadResult("", downloadType, D_DISK_ACCESS_ERR, args);
                 }
             }
         }
     }
+}
+
+void Downloader::setMaxDownloadThreads(int maxDownloadThreads)
+{
+    m_maxDownloadThreads = maxDownloadThreads;
 }

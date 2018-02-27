@@ -17,19 +17,6 @@
 #define DownloadAttributeArgs static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+3)
 #define DownloadAttributeIsListItem static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+4)
 
-enum DownloadType
-{
-    D_TYPE_TEXT = 0,
-    D_TYPE_BINARY,
-};
-
-enum DownloadErrors
-{
-    D_NO_ERR = 0,
-    D_DISK_ACCESS_ERR = 1000,
-    D_REPLY_ERR,
-};
-
 class DownloaderArg
 {
 public:
@@ -57,6 +44,7 @@ public:
 private:
     int m_type;
     QVariant m_content;
+
 };
 Q_DECLARE_METATYPE(DownloaderArg)
 
@@ -123,10 +111,27 @@ class Downloader : public QObject
 
 public:
     explicit Downloader(QObject *parent = nullptr);
+    explicit Downloader(QNetworkAccessManager *manager, QObject *parent = nullptr);
+
+    void setMaxDownloadThreads(int maxDownloadThreads);
+
+    enum DownloadType
+    {
+        D_TYPE_TEXT = 0,
+        D_TYPE_BINARY,
+    };
+
+    enum DownloadErrors
+    {
+        D_NO_ERR = 0,
+        D_DISK_ACCESS_ERR = 1000,
+        D_REPLY_ERR,
+    };
 
 signals:
-    void onComplete(QVariant data, int downloadType, int error, QVariantList args);
-    void onCompleteList(QList<QSharedPointer<DownloadResult> > results);
+    void complete(DownloadResult result);
+    void completes(QHash<QString,DownloadResult> results);
+//    void completeList(QList<QSharedPointer<DownloadResult> > results);
 
 public slots:
     void getData(QUrl url, int downloadType = D_TYPE_TEXT, QVariantList args = QVariantList(), QString filename = ""); // Метод инициализации запроса на получение данных
@@ -134,15 +139,16 @@ public slots:
     void onResult(QNetworkReply *reply);    // Слот обработки ответа о полученных данных
 
 private:
-    QNetworkAccessManager *m_pManager;         // менеджер сетевого доступа
+    QNetworkAccessManager *m_pManager;  // менеджер сетевого доступа
     QList<QSharedPointer<DownloadResult> > m_resultList;
     int m_downloadListSize;
     int m_downloadCounter;
+    int m_maxDownloadThreads;
 
     void appendDownloadResult(QVariant data, int downloadType, int error = D_NO_ERR, QVariantList args = QVariantList()) {
         m_resultList.append(QSharedPointer<DownloadResult>(new DownloadResult(data, downloadType, error, args)));
         if(m_resultList.size() == m_downloadListSize) {
-            emit onCompleteList(m_resultList);
+            emit completeList(m_resultList);
             m_downloadListSize = 0;
             m_resultList.clear();
         }
