@@ -3,49 +3,49 @@
 
 #include <QObject>
 #include <QHash>
+#include <QPair>
 
 #include <qgumbodocument.h>
 #include <qgumbonode.h>
 
-#include "core.h"
-#include "downloader.h"
 #include "parserresult.h"
 
 class Parser : public QObject
 {
     Q_OBJECT
 public:
-    explicit Parser(int maxDownloadThreads = 6, QObject *parent = nullptr);
-
-signals:
-    void progress(int percent);
-    void finish(QVariant result);
+    explicit Parser(QByteArray document = "", int type = TYPE_PARSE_MAIN_PAGE,  QObject *parent = nullptr);
 
 public slots:
-    void start();
-    void nextStage();
+    ParserResult start();
 
 public:
-    enum Stage {
-        STAGE_DOWNLOAD_MAIN_PAGE = 0,
-        STAGE_PARSE_MAIN_PAGE,
-        STAGE_DOWNLOAD_CURRENCE_PAGES,
-        STAGE_PARSE_CURRENCE_PAGES,
-        STAGE_DOWNLOAD_GITHUB_PAGES,
-        STAGE_PARSE_GITHUB_PAGES,
+    enum Types {
+        TYPE_PARSE_MAIN_PAGE = 0,
+        TYPE_PARSE_SUB_PAGE,
+        TYPE_PARSE_GITHUB_PAGE,
     };
     enum Error {
-        ERR_OK = 0,
+        ERR_INIT = -1,
+        ERR_OK = 0,        
         ERR_NO_DATA_FOUND,
+        ERR_BAD_SYNTAX,
+        ERR_UNKNOW_TYPE,
     };
 
-private:
-    Core *m_pCore;
-    QNetworkAccessManager *m_pNetworkAccessManager;
-    int m_stage;
-    ParserResult *m_pResult;
+    void setDocument(const QByteArray &document);
 
-    void registerAllTasks();
+    int type() const;
+    void setType(int type);
+
+private:
+    QByteArray m_document;
+    ParserResult m_result;
+    int m_type;
+
+    ParserResult _parseMainPage();
+    ParserResult _parseSubPage();
+    ParserResult _parseGithubPage();
 
 };
 

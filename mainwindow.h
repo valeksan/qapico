@@ -7,15 +7,11 @@
 #include <QDebug>
 
 #include "database.h"
+#include "exts_funcs.h"
 
 namespace Ui {
 class MainWindow;
 }
-
-enum Tasks
-{
-    TASK_UPDATE,
-};
 
 class MainWindow : public QMainWindow
 {
@@ -33,7 +29,5 @@ private:
     DataBase *db;
 
 };
-
-Q_DECLARE_METATYPE(TaskResult)
 
 #endif // MAINWINDOW_H
