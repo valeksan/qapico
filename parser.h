@@ -5,6 +5,10 @@
 #include <QHash>
 #include <QPair>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
 #include <qgumbodocument.h>
 #include <qgumbonode.h>
 
@@ -17,7 +21,7 @@ public:
     explicit Parser(QByteArray document = "", int type = TYPE_PARSE_MAIN_PAGE,  QObject *parent = nullptr);
 
 public slots:
-    ParserResult start();
+    ParserResult parse();
 
 public:
     enum Types {

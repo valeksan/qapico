@@ -26,5 +26,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButtonUpdate_clicked()
 {
-    ;
+    // TEST PARSE MAIN PAGE!
+    int err;
+    QByteArray page = Downloader::getHtmlPage(QUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0"), 1000, err);
+    if(err == Downloader::ERR_OK) {
+        Parser parser(page, Parser::TYPE_PARSE_MAIN_PAGE);
+        ParserResult result = parser.parse();
+        qDebug() << "error:" << result.error;
+        qDebug() << "result_is_null:" << result.empty();
+        qDebug() << "currencies_size:" << result.values.value("currencies").toHash().size();
+    }
 }

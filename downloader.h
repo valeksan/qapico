@@ -20,8 +20,8 @@ class DownloadResult
 {
 public:
     DownloadResult() {
-        error = Downloader::ERR_OK;
-        downloadType = Downloader::D_TYPE_TEXT;
+        error = 0;
+        downloadType = 0;
         data = QVariant();
         complete = false;
     }
@@ -50,8 +50,25 @@ class Downloader : public QObject
     bool is_unix;
 
 public:
-    explicit Downloader(QObject *parent = nullptr);
-    explicit Downloader(QNetworkAccessManager *manager, QObject *parent = nullptr);
+    explicit Downloader(QObject *parent = nullptr, QNetworkAccessManager *manager = nullptr);
+
+    static QByteArray getHtmlPage(QUrl url, int timeout, int &err) {
+       Downloader downloader;
+       QByteArray page;
+       QEventLoop loop;
+       QTimer timer;
+       timer.setSingleShot(true);
+       connect(&downloader, &Downloader::finish, &loop, &QEventLoop::quit);
+       connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+       connect(&downloader, &Downloader::complete, [=,&page,&err](DownloadResult result) {
+           err = result.error;
+           page = result.data.toByteArray();
+       });
+       downloader.getData(url, Downloader::D_TYPE_TEXT);
+       timer.start(timeout);
+       loop.exec();
+       return page;
+    }
 
     enum DownloadType
     {
@@ -69,6 +86,7 @@ public:
 signals:
     void complete(DownloadResult result);
     void progress(uint hash_url, qint64 bytesReceved, qint64 bytesTotal);
+    void finish();
 
 public slots:
     void getData(QUrl url, int downloadType = D_TYPE_TEXT, QVariantList args = QVariantList(), QString filename = "");

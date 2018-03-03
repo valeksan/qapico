@@ -1,6 +1,6 @@
 #include "downloader.h"
 
-Downloader::Downloader(QObject *parent) : QObject(parent)
+Downloader::Downloader(QObject *parent, QNetworkAccessManager *manager) : QObject(parent)
 {
 #ifdef Q_OS_UNIX
     is_unix = true;
@@ -8,19 +8,15 @@ Downloader::Downloader(QObject *parent) : QObject(parent)
     is_unix = false;
 #endif
     // Инициализируем менеджер ...
-    if(!m_pManager) {
+    if(!manager) {
         m_pManager = new QNetworkAccessManager();
+    } else {
+        m_pManager = manager;
     }
 
     // ... и подключаем сигнал о завершении получения данных к обработчику полученного ответа
     connect(m_pManager, &QNetworkAccessManager::finished, this, &Downloader::onResult);
 
-}
-
-Downloader::Downloader(QNetworkAccessManager *manager, QObject *parent)
-{
-    m_pManager = manager;
-    this->Downloader(parent);
 }
 
 void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString filename)
@@ -44,7 +40,7 @@ void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString 
             request.setAttribute(DownloadAttributeFilename, QVariant::fromValue(filename));
             request.setAttribute(DownloadAttributeArgs, QVariant::fromValue(args));
             m_pCurrentDownload = m_pManager->get(request);
-            connect(currentDownload, &QNetworkReply::downloadProgress, [&](qint64 bytesReceved, qint64 bytesTotal) {
+            connect(m_pCurrentDownload, &QNetworkReply::downloadProgress, [&](qint64 bytesReceved, qint64 bytesTotal) {
                 uint hash_url = qHash(url);
                 emit progress(hash_url, bytesReceved, bytesTotal);
             });
@@ -63,7 +59,7 @@ void Downloader::onResult(QNetworkReply *reply)
     result.args = reply->attribute(DownloadAttributeArgs).value<QVariantList>();
     result.errorReply = reply->error();
     result.errorReplyText = reply->errorString();
-    result.url = reply->url();
+    result.url = reply->url().toString();
 
     if(reply->error() == QNetworkReply::NoError) {
         switch(result.downloadType) {
@@ -71,7 +67,7 @@ void Downloader::onResult(QNetworkReply *reply)
             {
                 result.data = reply->readAll();
                 result.error = Downloader::ERR_OK;
-                emit complete(result);
+                emit complete(result);                
             }
             break;
         case Downloader::D_TYPE_BINARY:
@@ -103,4 +99,5 @@ void Downloader::onResult(QNetworkReply *reply)
         qDebug() << "ERROR: " << reply->errorString();
         emit complete(result);
     }
+    emit finish();
 }

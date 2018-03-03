@@ -12,8 +12,6 @@ bool isAppPathExists();
 template<typename Func>
 bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender, Func signal, int timeout = 30000);
 
-QString firstLetterToUp(QString str) {
-    return (str.left(1).toUpper()+str.mid(1));
-}
+QString firstLetterToUp(QString str);
 
 #endif // EXTS_FUNCS_H

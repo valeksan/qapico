@@ -8,6 +8,8 @@
 
 #include "database.h"
 #include "exts_funcs.h"
+#include "parser.h"
+#include "downloader.h"
 
 namespace Ui {
 class MainWindow;

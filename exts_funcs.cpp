@@ -44,3 +44,7 @@ bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender,
     if(timer.isActive()) return true;
     else return false;
 }
+
+QString firstLetterToUp(QString str) {
+    return (str.left(1).toUpper()+str.mid(1));
+}
