@@ -8,16 +8,13 @@ class ParserResult
 {
 
 public:
-    ParserResult();
-    ParserResult(int err);
+    ParserResult(int type = -1, int err = -1);
 
     QHash<QString, QVariant> values;
-    QString key;
     int type;
     int error;
 
     void clear() {
-        key.clear();
         type = -1;
         error = -1;
         values.clear();
