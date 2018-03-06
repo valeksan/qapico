@@ -9,6 +9,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include <QDebug>
+
 #include <qgumbodocument.h>
 #include <qgumbonode.h>
 

@@ -25,6 +25,7 @@ void Downloader::getData(QUrl url, int downloadType, QVariantList args, QString 
     case Downloader::D_TYPE_TEXT:
         {
             QNetworkRequest request;
+            request.setHeader(QNetworkRequest::UserAgentHeader,"Mozilla/5.0 (Windows NT 6.1; rv:16.0) Gecko/20100101 Firefox/16.0");
             request.setUrl(url);
             request.setAttribute(DownloadAttributeType, QVariant::fromValue(static_cast<int>(downloadType)));
             request.setAttribute(DownloadAttributeArgs, QVariant::fromValue(args));

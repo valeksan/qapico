@@ -43,7 +43,7 @@ ParserResult Parser::_parseMainPage()
     QJsonDocument document = QJsonDocument::fromJson(m_document);
     ParserResult result(Parser::TYPE_PARSE_MAIN_PAGE);
     QHash<QString,QVariant> currencies_result;
-    QHash<QString,QUrl> currencies_sub_urls_result;
+    QHash<QString,QVariant> currencies_sub_urls_result;
     if(!(document.isEmpty() || document.isNull()) && document.isArray()) {
         QJsonArray currencies = document.array();
         for(int i = 0; i < currencies.size(); i++) {
@@ -51,7 +51,7 @@ ParserResult Parser::_parseMainPage()
             QString id = currency.value("id").toString();
             QHash<QString,QVariant> pars;
             QUrl url_subpage("https://coinmarketcap.com");
-            url_subpage.setPath(QString("/")+id);
+            url_subpage.setPath(QString("/currencies/")+id+"/");
             pars.insert("name", currency.value("name").toString());
             pars.insert("symbol", currency.value("symbol").toString());
             pars.insert("rank", currency.value("rank").toString());
@@ -67,7 +67,7 @@ ParserResult Parser::_parseMainPage()
             pars.insert("percent_change_7d", currency.value("percent_change_7d").toString());
             pars.insert("last_updated", currency.value("last_updated").toString());
             currencies_result.insert(id, pars);
-            currencies_sub_urls_result.insert(id, url_subpage);
+            currencies_sub_urls_result.insert(id, QVariant::fromValue(url_subpage));
         }
         result.values.insert("currencies", QVariant::fromValue(currencies_result));
         result.values.insert("currencies_sub_urls", QVariant::fromValue(currencies_sub_urls_result));
@@ -88,6 +88,7 @@ ParserResult Parser::_parseSubPage()
     QGumboDocument doc = QGumboDocument::parse(m_document);
     QGumboNode currentNode = doc.rootNode();
     QGumboNodes currentNodes;
+    bool nodeFound = false;
     QList<QString> listWebsiteValues;
     QList<QString> listExplorerValues;
     QList<QString> listMessageBoardValues;
@@ -95,100 +96,87 @@ ParserResult Parser::_parseSubPage()
     QList<QString> listAnnouncementValues;
     QList<QString> listSourceCodeValues;
     QList<QString> listTagsValues;
-    uint hashWebsiteTitle = qHash("Website");
-    uint hashExplorerTitle = qHash("Explorer");
-    uint hashMessageBoardTitle = qHash("MessageBoard");
-    uint hashChatTitle = qHash("Chat");
-    uint hashAnnouncementTitle = qHash("Announcement");
-    uint hashSourceCodeTitle = qHash("SourceCode");
-    uint hashTagsTitle = qHash("Tags");
-    uint hashCurrentTitle = 0;
 
     try {
         currentNode = currentNode.getElementsByTagName(HtmlTag::BODY).front();
+        qDebug() << "classes: " << currentNode.classList();
     } catch(const std::out_of_range& oor) {
-        qDebug() << "Body tag not found!(b) " << "Out of Range error: " << oor.what();
+        qDebug() << "Body tag not found!(body) " << "Out of Range error: " << oor.what();
         result.error = Parser::ERR_BAD_SYNTAX;
         return result;
     }
     try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::DIV).at(3);
+        currentNodes = currentNode.getElementsByTagName(HtmlTag::UL);
+        for(uint i = 0; i < currentNodes.size(); i++) {
+//            qDebug() << "UL[" << i << "]{classes:" << currentNodes.at(i).classList() << ";id:" << currentNodes.at(i).id() << "}";
+            if(currentNodes.at(i).classList().contains("list-unstyled")) {
+                currentNode = currentNodes.at(i);
+                nodeFound = true;
+                break;
+            }
+        }
+        if(!nodeFound) {
+            result.error = Parser::ERR_BAD_SYNTAX;
+            return result;
+        }
     } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3) " << "Out of Range error: " << oor.what();
-        result.error = Parser::ERR_BAD_SYNTAX;
-        return result;
-    }
-    try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::DIV).front();
-    } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3:d0) " << "Out of Range error: " << oor.what();
-        result.error = Parser::ERR_BAD_SYNTAX;
-        return result;
-    }
-    try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::DIV).front();
-    } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3:d0:d0) " << "Out of Range error: " << oor.what();
-        result.error = Parser::ERR_BAD_SYNTAX;
-        return result;
-    }
-    try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::DIV).at(3);
-    } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3:d0:d0:d3) " << "Out of Range error: " << oor.what();
-        result.error = Parser::ERR_BAD_SYNTAX;
-        return result;
-    }
-    try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::DIV).at(1);
-    } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3:d0:d0:d3:d1) " << "Out of Range error: " << oor.what();
-        result.error = Parser::ERR_BAD_SYNTAX;
-        return result;
-    }
-    try {
-        currentNode = currentNode.getElementsByTagName(HtmlTag::UL).front();
-    } catch(const std::out_of_range& oor) {
-        qDebug() << "Div tag not found!(b:d3:d0:d0:d3:d1:ul0) " << "Out of Range error: " << oor.what();
+        qDebug() << "Div tag not found!(ul) " << "Out of Range error: " << oor.what();
         result.error = Parser::ERR_BAD_SYNTAX;
         return result;
     }
     currentNodes = currentNode.getElementsByTagName(HtmlTag::LI);
-    for(int nNode = 0; nNode < currentNodes.size(); nNode++) {
-        QGumboNode currentNode = currentNodes.at(nNode);
-        QGumboNode span_tag;
+    for(uint i = 0; i < currentNodes.size(); i++) {
+        QGumboNode li_node = currentNodes.at(i);
         try {
-            span_tag = currentNode.getElementsByTagName(HtmlTag::SPAN).front();
-            hashCurrentTitle = qHash(span_tag.getAttribute("title"));
-            if(hashCurrentTitle == hashWebsiteTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+            QGumboNodes span_tags = li_node.getElementsByTagName(HtmlTag::SPAN);
+            QString currentTitle = span_tags.front().getAttribute("title");
+            if(currentTitle == "Website") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listWebsiteValues.append(url);
-            } else if(hashCurrentTitle == hashAnnouncementTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+                //qDebug() << "Website:" << url;
+            } else if(currentTitle == "Announcement") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listAnnouncementValues.append(url);
-            } else if(hashCurrentTitle == hashChatTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+            } else if(currentTitle == "Chat") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listChatValues.append(url);
-            } else if(hashCurrentTitle == hashExplorerTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+            } else if(currentTitle == "Explorer") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listExplorerValues.append(url);
-            } else if(hashCurrentTitle == hashMessageBoardTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+            } else if(currentTitle == "Message Board") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listMessageBoardValues.append(url);
-            } else if(hashCurrentTitle == hashSourceCodeTitle) {
-                QString url = span_tag.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
+            } else if(currentTitle == "Source Code") {
+                QString url = li_node.getElementsByTagName(HtmlTag::A).front().getAttribute("href");
                 listSourceCodeValues.append(url);
-            } else if(hashCurrentTitle == hashTagsTitle) {
-                QGumboNodes tagNodes = currentNode.getElementsByTagName(HtmlTag::SMALL).front().getElementsByTagName(HtmlTag::SPAN);
-                for(int nTagNode = 0; nTagNode < tagNodes.size(); nTagNode++) {
-                    QString tagName = tagNodes.at(nTagNode).innerText();
+            } else if(currentTitle == "Tags") {
+                for(uint j = 1; j < span_tags.size(); j++) {
+                    QString tagName = span_tags.at(j).innerText();
                     listTagsValues.append(tagName);
                 }
             }
         } catch(const std::out_of_range& oor) {
+            Q_UNUSED(oor)
             continue;
         }
     }
+    result.values.insert("WebsiteUrls", listWebsiteValues);
+    result.values.insert("ExplorerUrls", listExplorerValues);
+    result.values.insert("MessageBoardUrls", listMessageBoardValues);
+    result.values.insert("ChatUrls", listChatValues);
+    result.values.insert("AnnouncementUrls", listAnnouncementValues);
+    result.values.insert("SourceCodeUrls", listSourceCodeValues);
+    result.values.insert("Tags", listTagsValues);
+    result.error = Parser::ERR_OK;
+    /*
+    qDebug() << "listWebsiteValues:"    << listWebsiteValues;
+    qDebug() << "listExplorerValues:"   << listExplorerValues;
+    qDebug() << "listMessageBoardValues:" << listMessageBoardValues;
+    qDebug() << "listChatValues"        << listChatValues;
+    qDebug() << "listAnnouncementValues" << listAnnouncementValues;
+    qDebug() << "listSourceCodeValues"  << listSourceCodeValues;
+    qDebug() << "listTagsValues"        << listTagsValues;
+    */
     return result;
 }
 
