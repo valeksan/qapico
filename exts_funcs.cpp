@@ -48,3 +48,11 @@ bool waitSignal(const typename QtPrivate::FunctionPointer<Func>::Object *sender,
 QString firstLetterToUp(QString str) {
     return (str.left(1).toUpper()+str.mid(1));
 }
+
+QUrl convertGithubUrlToApiReq(QUrl url, bool isOrganisation)
+{
+    QUrl newUrl("https://api.github.com");
+    QString path = QString("/%1/%2/repos").arg((isOrganisation ? "orgs" : "users" )).arg(url.path().section("/", 1, 1));
+    newUrl.setPath(path);
+    return newUrl;
+}

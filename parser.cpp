@@ -1,5 +1,6 @@
 #include "parser.h"
 
+
 Parser::Parser(QByteArray document, int type, QObject *parent) : QObject(parent),
     m_document(document), m_type(type)
 {
@@ -40,8 +41,8 @@ void Parser::setType(int type)
 
 ParserResult Parser::_parseMainPage()
 {
-    QJsonDocument document = QJsonDocument::fromJson(m_document);
     ParserResult result(Parser::TYPE_PARSE_MAIN_PAGE);
+    QJsonDocument document = QJsonDocument::fromJson(m_document);    
     QHash<QString,QVariant> currencies_result;
     QHash<QString,QVariant> currencies_sub_urls_result;
     if(!(document.isEmpty() || document.isNull()) && document.isArray()) {
@@ -160,13 +161,13 @@ ParserResult Parser::_parseSubPage()
             continue;
         }
     }
-    result.values.insert("WebsiteUrls", listWebsiteValues);
-    result.values.insert("ExplorerUrls", listExplorerValues);
-    result.values.insert("MessageBoardUrls", listMessageBoardValues);
-    result.values.insert("ChatUrls", listChatValues);
-    result.values.insert("AnnouncementUrls", listAnnouncementValues);
-    result.values.insert("SourceCodeUrls", listSourceCodeValues);
-    result.values.insert("Tags", listTagsValues);
+    result.values.insert("WebsiteUrls", QVariant::fromValue(listWebsiteValues));
+    result.values.insert("ExplorerUrls", QVariant::fromValue(listExplorerValues));
+    result.values.insert("MessageBoardUrls", QVariant::fromValue(listMessageBoardValues));
+    result.values.insert("ChatUrls", QVariant::fromValue(listChatValues));
+    result.values.insert("AnnouncementUrls", QVariant::fromValue(listAnnouncementValues));
+    result.values.insert("SourceCodeUrls", QVariant::fromValue(listSourceCodeValues));
+    result.values.insert("Tags", QVariant::fromValue(listTagsValues));
     result.error = Parser::ERR_OK;
     /*
     qDebug() << "listWebsiteValues:"    << listWebsiteValues;
@@ -182,7 +183,37 @@ ParserResult Parser::_parseSubPage()
 
 ParserResult Parser::_parseGithubPage()
 {
-    ParserResult result;
-    //
+    ParserResult result(Parser::TYPE_PARSE_GITHUB_PAGE);
+    QJsonDocument document = QJsonDocument::fromJson(m_document);
+    if(!(document.isEmpty() || document.isNull()) && document.isArray()) {
+        QJsonArray projects = document.array();
+        for(int i = 0; i < projects.size(); i++) {
+            QJsonObject projectObj = projects.at(i).toObject();
+            QHash<QString,QVariant> pars;
+            QString nameProject = projectObj.value("name").toString();
+            QJsonObject licenseObj = projectObj.value("license").toObject();
+            pars.insert("created_at", projectObj.value("created_at").toString());
+            pars.insert("updated_at", projectObj.value("updated_at").toString());
+            pars.insert("pushed_at", projectObj.value("pushed_at").toString());
+            pars.insert("clone_url", projectObj.value("clone_url").toString());
+            pars.insert("homepage", projectObj.value("homepage").toString());
+            pars.insert("language", projectObj.value("language").toString());
+            pars.insert("license_name", licenseObj.value("name").toString());
+            pars.insert("license_url", licenseObj.value("url").toString());
+            pars.insert("is_fork", projectObj.value("fork").toBool());
+            pars.insert("size", projectObj.value("size").toString());
+            pars.insert("stars_count", projectObj.value("stargazers_count").toString());
+            pars.insert("watchers_count", projectObj.value("watchers_count").toString());
+            pars.insert("forks_count", projectObj.value("forks_count").toString());
+            pars.insert("open_issues_count", projectObj.value("open_issues_count").toString());
+            pars.insert("description", projectObj.value("description").toString());
+            result.values.insert(nameProject,QVariant::fromValue(pars));
+        }
+    } else {
+        if(!m_document.isEmpty())
+            result.error = Parser::ERR_BAD_SYNTAX;
+        else
+            result.error = Parser::ERR_NO_DATA_FOUND;
+    }
     return result;
 }
