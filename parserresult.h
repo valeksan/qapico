@@ -10,7 +10,7 @@ class ParserResult
 public:
     ParserResult(int type = -1, int err = -1);
 
-    QHash<QString, QVariant> values;
+    QHash<int, QVariant> values;
     int type;
     int error;
 
