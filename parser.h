@@ -28,7 +28,7 @@ public slots:
 public:
     enum Types {
         TYPE_PARSE_MAIN_PAGE = 0,
-        TYPE_PARSE_SUB_PAGE,
+        TYPE_PARSE_INFO_PAGE,
         TYPE_PARSE_GITHUB_PAGE,
     };
     enum MainTablesKeys {

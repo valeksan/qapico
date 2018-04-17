@@ -13,7 +13,7 @@ ParserResult Parser::parse()
     case Parser::TYPE_PARSE_MAIN_PAGE:
         return _parseMainPage();
 
-    case Parser::TYPE_PARSE_SUB_PAGE:
+    case Parser::TYPE_PARSE_INFO_PAGE:
         return _parseSubPage();
 
     case Parser::TYPE_PARSE_GITHUB_PAGE:
@@ -85,7 +85,7 @@ ParserResult Parser::_parseMainPage()
 
 ParserResult Parser::_parseSubPage()
 {
-    ParserResult result(Parser::TYPE_PARSE_SUB_PAGE);
+    ParserResult result(Parser::TYPE_PARSE_INFO_PAGE);
     QGumboDocument doc = QGumboDocument::parse(m_document);
     QGumboNode currentNode = doc.rootNode();
     QGumboNodes currentNodes;

@@ -16,11 +16,26 @@
 #define DownloadAttributeFilename static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+2)
 #define DownloadAttributeArgs static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User+3)
 
+class DownloadError {
+public:
+    DownloadError() {
+        error = Downloader::ERR_OK;
+        errorReply = QNetworkReply::NoError;
+        errorReplyText = "";
+    }
+
+public:
+    int error;
+    int errorReply;
+    QString errorReplyText;
+};
+Q_DECLARE_METATYPE(DownloadError)
+
 class DownloadResult
 {
 public:
     DownloadResult() {
-        error = 0;
+//        error = 0;
         downloadType = 0;
         data = QVariant();
         complete = false;
@@ -31,9 +46,10 @@ public:
     }
 
 public:
-    int error;
-    int errorReply;
-    QString errorReplyText;
+    DownloadError errors;
+//    int error;
+//    int errorReply;
+//    QString errorReplyText;
     QVariant data;
     int downloadType;
     QVariantList args;
@@ -49,10 +65,13 @@ class Downloader : public QObject
 
     bool is_unix;
 
+    static int lastDownloaderReplyError;
+    static int lastDownloaderReplyErrorText;
+
 public:
     explicit Downloader(QObject *parent = nullptr, QNetworkAccessManager *manager = nullptr);
 
-    static QByteArray getHtmlPage(QUrl url, int timeout, int &err) {
+    static QByteArray getHtmlPage(QUrl url, int timeout, DownloadError &err) {
        Downloader downloader;
        QByteArray page;
        QEventLoop loop;
@@ -61,6 +80,11 @@ public:
        connect(&downloader, &Downloader::finish, &loop, &QEventLoop::quit);
        connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
        connect(&downloader, &Downloader::complete, [=,&page,&err](DownloadResult result) {
+           //lastDownloaderReplyError =
+           if(result.error == ERR_REPLY) {
+               lastDownloaderReplyError = result.errorReply;
+               lastDownloaderReplyErrorText = result.errorReplyText;
+           }
            err = result.error;
            page = result.data.toByteArray();
        });
@@ -69,6 +93,8 @@ public:
        loop.exec();
        return page;
     }
+
+
 
     enum DownloadType
     {

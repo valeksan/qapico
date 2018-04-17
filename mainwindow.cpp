@@ -35,33 +35,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButtonUpdate_clicked()
 {
-    ParserResult result;
-    ParserResult result_2;
-    ParserResult result_3;
+    ParserResult resultParseCMC;
+    //ParserResult result_2;
+    //ParserResult result_3;
 
     // TEST PARSE MAIN PAGE!
     // https://api.coinmarketcap.com/v1/ticker/?limit=0
     int err;    
-    QByteArray page = Downloader::getHtmlPage(QUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0"), 15000, err);
+    QUrl cmcpApiUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0");
+    QByteArray page = Downloader::getHtmlPage(cmcpApiUrl, 15000, err);
     if(err == Downloader::ERR_OK) {
         qDebug() << "Parse: MAIN PAGE";
         Parser parser(page, Parser::TYPE_PARSE_MAIN_PAGE);
         ui->textBrowser->setHtml(page);
         //qDebug() << "page:" << page;
-        result = parser.parse();
-        qDebug() << "result_is_null:" << result.empty();
-        qDebug() << "currencies_size:" << result.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
+        resultParseCMC = parser.parse();
+        qDebug() << "result_is_null:" << resultParseCMC.empty();
+        qDebug() << "currencies_size:" << resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
     } else {        
-        qDebug() << "error download Main page:" << result.error;
+        qDebug() << "error download Main page:" << resultParseCMC.error;
+        QMessageBox::critical(this, "error", QString("error download: %1\nerr number: %2").arg(cmcpApiUrl.toString()).arg(err));
         return;
     }
+
+
     // TEST PARSE SUB PAGE!
     // https://coinmarketcap.com/currencies/{bitcoin}/
-    QHash<QString,QVariant> values = result.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS).toHash();
+    /*
+    QHash<QString,QVariant> values = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS).toHash();
     page = Downloader::getHtmlPage(values.value("bitcoin").toUrl(), 5000, err);
     if(err == Downloader::ERR_OK) {
         qDebug() << "Parse: SUB PAGE";
-        Parser parser(page, Parser::TYPE_PARSE_SUB_PAGE);
+        Parser parser(page, Parser::TYPE_PARSE_INFO_PAGE);
         result_2 = parser.parse();        
         qDebug() << "result_is_null:" << result_2.empty();
         qDebug() << ":: Parse " << values.value("bitcoin").toUrl() << " : OK";
@@ -69,11 +74,13 @@ void MainWindow::on_pushButtonUpdate_clicked()
         qDebug() << "error download Sub page:" << result_2.error;
         return;
     }
+    */
     // TEST PARSE GITHUB PAGE!
     // https://api.github.com/{users, orgs}/{:user, :org}/repos
     // https://api.github.com/orgs/valeksan/repos
     // https://github.com/{bitcoin}/ -> https://api.github.com/users/{bitcoin}/repos
     //...
+    /*
     QString urlStr = result_2.values.value(Parser::KEY_INF_LIST_SOURCECODE_URLS).value<QList<QString> >().value(0, QString());
     if(!urlStr.isEmpty()) {
         QUrl reqUrl = convertGithubUrlToApiReq(QUrl(urlStr));
@@ -92,4 +99,5 @@ void MainWindow::on_pushButtonUpdate_clicked()
         qDebug() << ":: error: github_url par-r is null!";
         return;
     }
+    */
 }

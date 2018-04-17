@@ -1,5 +1,8 @@
 #include "downloader.h"
 
+int Downloader::lastDownloaderReplyError = 0;
+QString Downloader::lastDownloaderReplyErrorText = "";
+
 Downloader::Downloader(QObject *parent, QNetworkAccessManager *manager) : QObject(parent)
 {
 #ifdef Q_OS_UNIX
@@ -58,8 +61,8 @@ void Downloader::onResult(QNetworkReply *reply)
     DownloadResult result;
     result.downloadType = reply->attribute(DownloadAttributeType).toInt();
     result.args = reply->attribute(DownloadAttributeArgs).value<QVariantList>();
-    result.errorReply = reply->error();
-    result.errorReplyText = reply->errorString();
+    result.errors.errorReply = reply->error();
+    result.errors.errorReplyText = reply->errorString();
     result.url = reply->url().toString();
 
     if(reply->error() == QNetworkReply::NoError) {
@@ -67,7 +70,7 @@ void Downloader::onResult(QNetworkReply *reply)
         case Downloader::D_TYPE_TEXT:
             {
                 result.data = reply->readAll();
-                result.error = Downloader::ERR_OK;
+                result.errors.error = Downloader::ERR_OK;
                 emit complete(result);                
             }
             break;
@@ -101,4 +104,6 @@ void Downloader::onResult(QNetworkReply *reply)
         emit complete(result);
     }
     emit finish();
+
+    reply->deleteLater();
 }
