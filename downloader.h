@@ -19,10 +19,16 @@
 class DownloadError {
 public:
     DownloadError() {
-        error = Downloader::ERR_OK;
+        error = DownloadError::ERR_OK;
         errorReply = QNetworkReply::NoError;
         errorReplyText = "";
     }
+    enum DownloadErrors
+    {
+        ERR_OK = 0,
+        ERR_DISK_ACCESS = 1000,
+        ERR_REPLY,
+    };
 
 public:
     int error;
@@ -65,9 +71,6 @@ class Downloader : public QObject
 
     bool is_unix;
 
-    static int lastDownloaderReplyError;
-    static int lastDownloaderReplyErrorText;
-
 public:
     explicit Downloader(QObject *parent = nullptr, QNetworkAccessManager *manager = nullptr);
 
@@ -80,12 +83,7 @@ public:
        connect(&downloader, &Downloader::finish, &loop, &QEventLoop::quit);
        connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
        connect(&downloader, &Downloader::complete, [=,&page,&err](DownloadResult result) {
-           //lastDownloaderReplyError =
-           if(result.error == ERR_REPLY) {
-               lastDownloaderReplyError = result.errorReply;
-               lastDownloaderReplyErrorText = result.errorReplyText;
-           }
-           err = result.error;
+           err = result.errors;
            page = result.data.toByteArray();
        });
        downloader.getData(url, Downloader::D_TYPE_TEXT);
@@ -94,19 +92,10 @@ public:
        return page;
     }
 
-
-
     enum DownloadType
     {
         D_TYPE_TEXT = 0,
         D_TYPE_BINARY,
-    };
-
-    enum DownloadErrors
-    {
-        ERR_OK = 0,
-        ERR_DISK_ACCESS = 1000,
-        ERR_REPLY,
     };
 
 signals:

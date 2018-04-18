@@ -41,10 +41,10 @@ void MainWindow::on_pushButtonUpdate_clicked()
 
     // TEST PARSE MAIN PAGE!
     // https://api.coinmarketcap.com/v1/ticker/?limit=0
-    int err;    
+    DownloadError err;
     QUrl cmcpApiUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0");
     QByteArray page = Downloader::getHtmlPage(cmcpApiUrl, 15000, err);
-    if(err == Downloader::ERR_OK) {
+    if(err.error == DownloadError::ERR_OK) {
         qDebug() << "Parse: MAIN PAGE";
         Parser parser(page, Parser::TYPE_PARSE_MAIN_PAGE);
         ui->textBrowser->setHtml(page);
@@ -54,7 +54,7 @@ void MainWindow::on_pushButtonUpdate_clicked()
         qDebug() << "currencies_size:" << resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
     } else {        
         qDebug() << "error download Main page:" << resultParseCMC.error;
-        QMessageBox::critical(this, "error", QString("error download: %1\nerr number: %2").arg(cmcpApiUrl.toString()).arg(err));
+        QMessageBox::critical(this, "error", QString("error download: %1\nerr number: %2-%3").arg(cmcpApiUrl.toString()).arg(err.error).arg(err.errorReply));
         return;
     }
 

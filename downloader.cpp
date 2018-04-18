@@ -1,8 +1,5 @@
 #include "downloader.h"
 
-int Downloader::lastDownloaderReplyError = 0;
-QString Downloader::lastDownloaderReplyErrorText = "";
-
 Downloader::Downloader(QObject *parent, QNetworkAccessManager *manager) : QObject(parent)
 {
 #ifdef Q_OS_UNIX
@@ -70,7 +67,7 @@ void Downloader::onResult(QNetworkReply *reply)
         case Downloader::D_TYPE_TEXT:
             {
                 result.data = reply->readAll();
-                result.errors.error = Downloader::ERR_OK;
+                result.errors.error = DownloadError::ERR_OK;
                 emit complete(result);                
             }
             break;
@@ -84,13 +81,13 @@ void Downloader::onResult(QNetworkReply *reply)
                         file->close();
                         qDebug() << "Download " << result.url << " complete";
                         result.data = file->fileName();
-                        result.error = Downloader::ERR_OK;
+                        result.errors.error = DownloadError::ERR_OK;
                         emit complete(result);
                     }
                 } else {
                     qDebug() << "ERROR: " << "Disk access error";
                     result.data = "";
-                    result.error = Downloader::ERR_DISK_ACCESS;
+                    result.errors.error = DownloadError::ERR_DISK_ACCESS;
                     emit complete(result);
                 }
             }
@@ -99,7 +96,7 @@ void Downloader::onResult(QNetworkReply *reply)
 
     } else {        
         result.data = "";
-        result.error = Downloader::ERR_REPLY;
+        result.errors.error = DownloadError::ERR_REPLY;
         qDebug() << "ERROR: " << reply->errorString();
         emit complete(result);
     }
