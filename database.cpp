@@ -28,27 +28,38 @@ void DataBase::connectToDataBase()
 bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_CURRENCIES " ( " T_CURRENCIES_NAME ", "
+    query.prepare("INSERT INTO " T_CURRENCIES " ( "
+                  T_CURRENCIES_NAME ", "
                   T_CURRENCIES_SYMBOL ", "
-                  T_CURRENCIES_CALC_SUPPLY ", "
+                  T_CURRENCIES_RANK ", "
+                  T_CURRENCIES_AVAIBLE_SUPPLY ", "
+                  T_CURRENCIES_TOTAL_SUPPLY ", "
+                  T_CURRENCIES_MAX_SUPPLY ", "
                   T_CURRENCIES_VOLUME_USD ", "
                   T_CURRENCIES_VOLUME_BTC ", "
                   T_CURRENCIES_PRICE_USD ", "
                   T_CURRENCIES_PRICE_BTC ", "
                   T_CURRENCIES_MINEABLE ", "
                   T_CURRENCIES_IS_OPENSOURCE_PROJECT ") "
-                  "VALUES (:T_CURRENCIES_NAME, "
-                                        ":T_CURRENCIES_SYMBOL, "
-                                        ":T_CURRENCIES_CALC_SUPPLY, "
-                                        ":T_CURRENCIES_VOLUME_USD, "
-                                        ":T_CURRENCIES_VOLUME_BTC, "
-                                        ":T_CURRENCIES_PRICE_USD, "
-                                        ":T_CURRENCIES_PRICE_BTC, "
-                                        ":T_CURRENCIES_MINEABLE, "
-                                        ":T_CURRENCIES_IS_OPENSOURCE_PROJECT) ");
+                                                     "VALUES (:T_CURRENCIES_NAME, "
+                                                     ":T_CURRENCIES_SYMBOL, "
+                                                     ":T_CURRENCIES_RANK, "
+                                                     ":T_CURRENCIES_AVAIBLE_SUPPLY, "
+                                                     ":T_CURRENCIES_TOTAL_SUPPLY, "
+                                                     ":T_CURRENCIES_MAX_SUPPLY, "
+                                                     ":T_CURRENCIES_VOLUME_USD, "
+                                                     ":T_CURRENCIES_VOLUME_BTC, "
+                                                     ":T_CURRENCIES_PRICE_USD, "
+                                                     ":T_CURRENCIES_PRICE_BTC, "
+                                                     ":T_CURRENCIES_MINEABLE, "
+                                                     ":T_CURRENCIES_IS_OPENSOURCE_PROJECT) ");
+
     query.bindValue(":T_CURRENCIES_NAME",           data[0].toString());
     query.bindValue(":T_CURRENCIES_SYMBOL",         data[1].toString());
-    query.bindValue(":T_CURRENCIES_CALC_SUPPLY",    data[2].toDouble());
+    query.bindValue(":T_CURRENCIES_RANK",           data[1].toString());
+    query.bindValue(":T_CURRENCIES_AVAIBLE_SUPPLY", data[2].toDouble());
+    query.bindValue(":T_CURRENCIES_TOTAL_SUPPLY",   data[2].toDouble());
+    query.bindValue(":T_CURRENCIES_MAX_SUPPLY",     data[2].toDouble());
     query.bindValue(":T_CURRENCIES_VOLUME_USD",     data[3].toDouble());
     query.bindValue(":T_CURRENCIES_VOLUME_BTC",     data[4].toDouble());
     query.bindValue(":T_CURRENCIES_PRICE_USD",      data[5].toDouble());

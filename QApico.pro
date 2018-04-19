@@ -41,7 +41,8 @@ HEADERS += \
     database.h \
     exts_funcs.h \
     parser.h \
-    parserresult.h
+    parserresult.h \
+    database_names.h
 
 FORMS += \
         mainwindow.ui
