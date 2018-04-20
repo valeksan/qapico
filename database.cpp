@@ -25,47 +25,180 @@ void DataBase::connectToDataBase()
 
 /* Методы для вставки записей в таблицы
  * */
-bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
+bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
 {
-    QSqlQuery query;
-    query.prepare("INSERT INTO " T_CURRENCIES " ( "
-                  T_CURRENCIES_NAME ", "
-                  T_CURRENCIES_SYMBOL ", "
-                  T_CURRENCIES_RANK ", "
-                  T_CURRENCIES_AVAIBLE_SUPPLY ", "
-                  T_CURRENCIES_TOTAL_SUPPLY ", "
-                  T_CURRENCIES_MAX_SUPPLY ", "
-                  T_CURRENCIES_VOLUME_USD ", "
-                  T_CURRENCIES_VOLUME_BTC ", "
-                  T_CURRENCIES_PRICE_USD ", "
-                  T_CURRENCIES_PRICE_BTC ", "
-                  T_CURRENCIES_MINEABLE ", "
-                  T_CURRENCIES_IS_OPENSOURCE_PROJECT ") "
-                                                     "VALUES (:T_CURRENCIES_NAME, "
-                                                     ":T_CURRENCIES_SYMBOL, "
-                                                     ":T_CURRENCIES_RANK, "
-                                                     ":T_CURRENCIES_AVAIBLE_SUPPLY, "
-                                                     ":T_CURRENCIES_TOTAL_SUPPLY, "
-                                                     ":T_CURRENCIES_MAX_SUPPLY, "
-                                                     ":T_CURRENCIES_VOLUME_USD, "
-                                                     ":T_CURRENCIES_VOLUME_BTC, "
-                                                     ":T_CURRENCIES_PRICE_USD, "
-                                                     ":T_CURRENCIES_PRICE_BTC, "
-                                                     ":T_CURRENCIES_MINEABLE, "
-                                                     ":T_CURRENCIES_IS_OPENSOURCE_PROJECT) ");
+    if(roles.empty()) {
+        return false;
+    }
 
-    query.bindValue(":T_CURRENCIES_NAME",           data[0].toString());
-    query.bindValue(":T_CURRENCIES_SYMBOL",         data[1].toString());
-    query.bindValue(":T_CURRENCIES_RANK",           data[1].toString());
-    query.bindValue(":T_CURRENCIES_AVAIBLE_SUPPLY", data[2].toDouble());
-    query.bindValue(":T_CURRENCIES_TOTAL_SUPPLY",   data[2].toDouble());
-    query.bindValue(":T_CURRENCIES_MAX_SUPPLY",     data[2].toDouble());
-    query.bindValue(":T_CURRENCIES_VOLUME_USD",     data[3].toDouble());
-    query.bindValue(":T_CURRENCIES_VOLUME_BTC",     data[4].toDouble());
-    query.bindValue(":T_CURRENCIES_PRICE_USD",      data[5].toDouble());
-    query.bindValue(":T_CURRENCIES_PRICE_BTC",      data[6].toDouble());
-    query.bindValue(":T_CURRENCIES_MINEABLE",       data[7].toBool());
-    query.bindValue(":T_CURRENCIES_IS_OPENSOURCE_PROJECT",       data[8].toBool());
+    QSqlQuery query;
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_CURRENCIES_NAME:
+            sql_cells.append(CELL_CURRENCIES_NAME);
+            break;
+        case IDX_CURRENCIES_SYMBOL:
+            sql_cells.append(CELL_CURRENCIES_SYMBOL);
+            break;
+        case IDX_CURRENCIES_RANK:
+            sql_cells.append(CELL_CURRENCIES_RANK);
+            break;
+        case IDX_CURRENCIES_PRICE_USD:
+            sql_cells.append(CELL_CURRENCIES_PRICE_USD);
+            break;
+        case IDX_CURRENCIES_PRICE_BTC:
+            sql_cells.append(CELL_CURRENCIES_PRICE_BTC);
+            break;
+        case IDX_CURRENCIES_VOL24H_USD:
+            sql_cells.append(CELL_CURRENCIES_VOL24H_USD);
+            break;
+        case IDX_CURRENCIES_MARKETCAP_USD:
+            sql_cells.append(CELL_CURRENCIES_MARKETCAP_USD);
+            break;
+        case IDX_CURRENCIES_AVAIBLE_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_AVAIBLE_SUPPLY);
+            break;
+        case IDX_CURRENCIES_TOTAL_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_TOTAL_SUPPLY);
+            break;
+        case IDX_CURRENCIES_MAX_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_MAX_SUPPLY);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_1H:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_1H);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_24H:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_24H);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_7D:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_7D);
+            break;
+        case IDX_CURRENCIES_LAST_UPDATE_DATE:
+            sql_cells.append(CELL_CURRENCIES_LAST_UPDATE_DATE);
+            break;
+        case IDX_CURRENCIES_SL_TYPE:
+            sql_cells.append(CELL_CURRENCIES_SL_TYPE);
+            break;
+        case IDX_CURRENCIES_SL_MINEABLE:
+            sql_cells.append(CELL_CURRENCIES_SL_MINEABLE);
+            break;
+        case IDX_CURRENCIES_SL_SITE_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_SITE_URLS);
+            break;
+        case IDX_CURRENCIES_SL_ANNONCEMENT_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_ANNONCEMENT_URLS);
+            break;
+        case IDX_CURRENCIES_SL_CHAT_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_CHAT_URLS);
+            break;
+        case IDX_CURRENCIES_SL_EXPLORER_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_EXPLORER_URLS);
+            break;
+        case IDX_CURRENCIES_SL_MSGBOARD_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_MSGBOARD_URLS);
+            break;
+        case IDX_CURRENCIES_SL_SRC_URLS:
+            sql_cells.append(CELL_CURRENCIES_SL_SRC_URLS);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT INTO " T_CURRENCIES " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_CURRENCIES_NAME:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SYMBOL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_RANK:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toInt());
+            break;
+        case IDX_CURRENCIES_PRICE_USD:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_PRICE_BTC:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_VOL24H_USD:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_MARKETCAP_USD:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_AVAIBLE_SUPPLY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_TOTAL_SUPPLY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_MAX_SUPPLY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_1H:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toFloat());
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_24H:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toFloat());
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_7D:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toFloat());
+            break;
+        case IDX_CURRENCIES_LAST_UPDATE_DATE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toLongLong()); // datetime stamp
+            break;
+        case IDX_CURRENCIES_SL_TYPE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toInt());
+            break;
+        case IDX_CURRENCIES_SL_MINEABLE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toBool());
+            break;
+        case IDX_CURRENCIES_SL_SITE_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SL_ANNONCEMENT_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SL_CHAT_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SL_EXPLORER_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SL_MSGBOARD_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_SL_SRC_URLS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
+
     if(!query.exec()) {
         qDebug() << "error insert into " << T_CURRENCIES << " : MAIN PARSE";
         qDebug() << query.lastError().text();
@@ -76,26 +209,7 @@ bool DataBase::inserIntoCurrenciesTableParseInfo(const QVariantList &data)
     return false;
 }
 
-bool DataBase::updateIntoCurrenciesTableFlagOpensouceProject(bool flag, QString currencyName)
-{
-    QSqlQuery query;
-    query.prepare("UPDATE "
-                  T_CURRENCIES
-                  " SET "
-                  T_CURRENCIES_IS_OPENSOURCE_PROJECT " = :T_CURRENCIES_IS_OPENSOURCE_PROJECT"
-                  " WHERE " T_CURRENCIES_NAME " = :currencyName;");
-    query.bindValue(":T_CURRENCIES_IS_OPENSOURCE_PROJECT", flag);
-    query.bindValue(":currencyName", currencyName);
-    if(!query.exec()) {
-        qDebug() << "error update into " << T_CURRENCIES << " : IS_OPENSOURCE_PROJECT : " << flag;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-
+/*
 bool DataBase::inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data)
 {
     QSqlQuery query;
@@ -141,7 +255,9 @@ bool DataBase::inserIntoCurrenciesTableManualEditContentInfo(const QVariantList 
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data)
 {
     QSqlQuery query;
@@ -169,7 +285,9 @@ bool DataBase::inserIntoCurrenciesTableManualEditContactInfo(const QVariantList 
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoRoadmapDatesPoolTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -192,7 +310,9 @@ bool DataBase::inserIntoRoadmapDatesPoolTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoTokenAlgTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -211,7 +331,9 @@ bool DataBase::inserIntoTokenAlgTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoAppAreasTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -227,7 +349,9 @@ bool DataBase::inserIntoAppAreasTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoTechnologiesThreadsPoolTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -246,7 +370,9 @@ bool DataBase::inserIntoTechnologiesThreadsPoolTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoTechnologiesTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -265,7 +391,9 @@ bool DataBase::inserIntoTechnologiesTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoGithubHistoryPoolTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -320,7 +448,9 @@ bool DataBase::inserIntoGithubHistoryPoolTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
+/*
 bool DataBase::inserIntoMarketsTable(const QVariantList &data)
 {
     QSqlQuery query;
@@ -354,6 +484,7 @@ bool DataBase::inserIntoMarketsTable(const QVariantList &data)
     }
     return false;
 }
+*/
 
 /* Метод для открытия базы данных
  * */
@@ -415,6 +546,7 @@ bool DataBase::createAllTables()
     return true;
 }
 
+/*
 bool DataBase::createCurrenciesTable()
 {    
     QSqlQuery query;
@@ -617,3 +749,4 @@ bool DataBase::createMarketsTable()
     }
     return false;
 }
+*/

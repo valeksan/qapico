@@ -10,8 +10,15 @@
 #include <QDir>
 #include <QDate>
 #include <QDebug>
+#include <QByteArray>
 
 #include "database_names.h"
+
+//class QueryResult {
+//public:
+//    QueryResult() {}
+
+//};
 
 class DataBase : public QObject
 {
@@ -22,8 +29,9 @@ public:
      * Подключение к базе данных и вставка записей в таблицу
      * */
     void connectToDataBase();
-    bool inserIntoCurrenciesTableParseInfo(const QVariantList &data);
-    bool updateIntoCurrenciesTableFlagOpensouceProject(bool flag, QString currencyName);
+
+    bool inserIntoCurrenciesTable(const QHash<int,QVariant> &roles);
+
     bool inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data);
     bool inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data);
     bool inserIntoRoadmapDatesPoolTable(const QVariantList &data);
