@@ -85,7 +85,6 @@ enum CurrencyTypes {
 #define CELL_CURRENCIES_MEM_RM_URL              "RoadmapUrl"
 #define CELL_CURRENCIES_MEM_F_INTER_COMP        "IsInternationalCompany"
 #define CELL_CURRENCIES_MEM_F_WP_IN_CV          "IsWhitepaperInControlVersion"
-#define CELL_CURRENCIES_MEM_F_VACANCIES         "IsOpenVacancies"
 #define CELL_CURRENCIES_MEM_CONTACTS            "Contacts"          /**
     (example)
     "
@@ -106,22 +105,7 @@ enum CurrencyMemUpdCellIdx {
     IDX_CURRENCIES_MEM_RM_URL,
     IDX_CURRENCIES_MEM_F_INTER_COMP,
     IDX_CURRENCIES_MEM_F_WP_IN_CV,
-    IDX_CURRENCIES_MEM_F_VACANCIES,
     IDX_CURRENCIES_MEM_CONTACTS,
-};
-
-//////////////////////////////////////////////////////////////////////////
-/// Таблица: Знаковые даты дорожных карт проектов
-//////////////////////////////////////////////////////////////////////////
-#define T_ROADMAPSDATESPOOL                 "TableRoadmapDatesPool"
-#define CELL_ROADMAPSDATESPOOL_CURRENCY_SYMBOL  "Symbol"
-#define CELL_ROADMAPSDATESPOOL_DATE             "Date"
-#define CELL_ROADMAPSDATESPOOL_EVENT_INFO       "EventInfo"
-// - indexes for method upd:
-enum RoadmapDatesUpdCellIdx {
-    IDX_ROADMAPSDATESPOOL_CURRENCY_SYMBOL = 0,
-    IDX_ROADMAPSDATESPOOL_DATE,
-    IDX_ROADMAPSDATESPOOL_EVENT_INFO,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -141,9 +125,11 @@ enum TokenAlgUpdCellIdx {
 //////////////////////////////////////////////////////////////////////////
 #define T_AREAS                             "TableAppAreas"
 #define CELL_AREAS_NAME                         "Name"
+#define CELL_AREAS_COMMENT                      "Comment"
 // - indexes for method upd:
 enum AreasUpdCellIdx {
     IDX_AREAS_NAME = 0,
+    IDX_AREAS_COMMENT,
 };
 
 //////////////////////////////////////////////////////////////////////////

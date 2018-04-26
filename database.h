@@ -31,12 +31,10 @@ public:
     void connectToDataBase();
 
     bool inserIntoCurrenciesTable(const QHash<int,QVariant> &roles);
+    bool inserIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
+    bool inserIntoTokenAlgTable(const QHash<int,QVariant> &roles);
+    bool inserIntoAreasTable(const QHash<int,QVariant> &roles);
 
-    bool inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data);
-    bool inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data);
-    bool inserIntoRoadmapDatesPoolTable(const QVariantList &data);
-    bool inserIntoTokenAlgTable(const QVariantList &data);
-    bool inserIntoAppAreasTable(const QVariantList &data);
     bool inserIntoTechnologiesThreadsPoolTable(const QVariantList &data);
     bool inserIntoTechnologiesTable(const QVariantList &data);
     bool inserIntoGithubHistoryPoolTable(const QVariantList &data);

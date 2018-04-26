@@ -117,7 +117,7 @@ bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT INTO " T_CURRENCIES " ( ");
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_CURRENCIES " ( ");
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -200,7 +200,7 @@ bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
     }
 
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES << " : MAIN PARSE";
+        qDebug() << "error insert into " << T_CURRENCIES;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -209,45 +209,116 @@ bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
     return false;
 }
 
-/*
-bool DataBase::inserIntoCurrenciesTableManualEditContentInfo(const QVariantList &data)
+bool DataBase::inserIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
 {
+    if(roles.empty()) {
+        return false;
+    }
+
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_CURRENCIES " ( " T_CURRENCIES_MANUAL_UPD_DATE ", "
-                  T_CURRENCIES_APP_AREAS_ID ", "
-                  T_CURRENCIES_REV_IDEA ", "
-                  T_CURRENCIES_BASE_PLATFORM_ID ", "
-                  T_CURRENCIES_CON_ALG_ID ", "
-                  T_CURRENCIES_IS_INTER_COMP ", "
-                  T_CURRENCIES_IS_WP_IN_CV ", "
-                  T_CURRENCIES_IS_OP_VACANCIES ", "
-                  T_CURRENCIES_WP_URL ", "
-                  T_CURRENCIES_RM_URL ", "
-                  T_CURRENCIES_SITE_URL " ) "
-                  "VALUES (:T_CURRENCIES_MANUAL_UPD_DATE, "
-                                        ":T_CURRENCIES_APP_AREAS_ID, "
-                                        ":T_CURRENCIES_REV_IDEA, "
-                                        ":T_CURRENCIES_BASE_PLATFORM_ID, "
-                                        ":T_CURRENCIES_CON_ALG_ID, "
-                                        ":T_CURRENCIES_IS_INTER_COMP, "
-                                        ":T_CURRENCIES_IS_WP_IN_CV, "
-                                        ":T_CURRENCIES_IS_OP_VACANCIES, "
-                                        ":T_CURRENCIES_WP_URL, "
-                                        ":T_CURRENCIES_RM_URL, "
-                                        ":T_CURRENCIES_SITE_URL)");
-    query.bindValue(":T_CURRENCIES_MANUAL_UPD_DATE",    data[0].toDate());
-    query.bindValue(":T_CURRENCIES_APP_AREAS_ID",       data[1].toInt());
-    query.bindValue(":T_CURRENCIES_REV_IDEA",           data[2].toString());
-    query.bindValue(":T_CURRENCIES_BASE_PLATFORM_ID",   data[3].toInt());
-    query.bindValue(":T_CURRENCIES_CON_ALG_ID",         data[4].toInt());
-    query.bindValue(":T_CURRENCIES_IS_INTER_COMP",      data[5].toBool());
-    query.bindValue(":T_CURRENCIES_IS_WP_IN_CV",        data[6].toBool());
-    query.bindValue(":T_CURRENCIES_IS_OP_VACANCIES",    data[7].toBool());
-    query.bindValue(":T_CURRENCIES_WP_URL",             data[8].toString());
-    query.bindValue(":T_CURRENCIES_RM_URL",             data[9].toString());
-    query.bindValue(":T_CURRENCIES_SITE_URL",           data[10].toString());
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_CURRENCIES_MEM_SYMBOL:
+            sql_cells.append(CELL_CURRENCIES_MEM_SYMBOL);
+            break;
+        case IDX_CURRENCIES_MEM_MANUAL_UPD_DATE:
+            sql_cells.append(CELL_CURRENCIES_MEM_MANUAL_UPD_DATE);
+            break;
+        case IDX_CURRENCIES_MEM_APP_AREAS_KEY:
+            sql_cells.append(CELL_CURRENCIES_MEM_APP_AREAS_KEY);
+            break;
+        case IDX_CURRENCIES_MEM_REV_IDEA:
+            sql_cells.append(CELL_CURRENCIES_MEM_REV_IDEA);
+            break;
+        case IDX_CURRENCIES_MEM_BASE_PLATFORM_KEY:
+            sql_cells.append(CELL_CURRENCIES_MEM_BASE_PLATFORM_KEY);
+            break;
+        case IDX_CURRENCIES_MEM_CON_ALG_KEY:
+            sql_cells.append(CELL_CURRENCIES_MEM_CON_ALG_KEY);
+            break;
+        case IDX_CURRENCIES_MEM_WP_URL:
+            sql_cells.append(CELL_CURRENCIES_MEM_WP_URL);
+            break;
+        case IDX_CURRENCIES_MEM_RM_URL:
+            sql_cells.append(CELL_CURRENCIES_MEM_RM_URL);
+            break;
+        case IDX_CURRENCIES_MEM_F_INTER_COMP:
+            sql_cells.append(CELL_CURRENCIES_MEM_F_INTER_COMP);
+            break;
+        case IDX_CURRENCIES_MEM_F_WP_IN_CV:
+            sql_cells.append(CELL_CURRENCIES_MEM_F_WP_IN_CV);
+            break;
+        case IDX_CURRENCIES_MEM_CONTACTS:
+            sql_cells.append(CELL_CURRENCIES_MEM_CONTACTS);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_CURRENCIES_MEM " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_CURRENCIES_MEM_SYMBOL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_MANUAL_UPD_DATE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toLongLong());
+            break;
+        case IDX_CURRENCIES_MEM_APP_AREAS_KEY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_REV_IDEA:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_BASE_PLATFORM_KEY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_CON_ALG_KEY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_WP_URL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_RM_URL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_CURRENCIES_MEM_F_INTER_COMP:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toBool());
+            break;
+        case IDX_CURRENCIES_MEM_F_WP_IN_CV:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toBool());
+            break;
+        case IDX_CURRENCIES_MEM_CONTACTS:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
+
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES << " : CONTENT_FIELDS";
+        qDebug() << "error insert into " << T_CURRENCIES_MEM;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -255,73 +326,62 @@ bool DataBase::inserIntoCurrenciesTableManualEditContentInfo(const QVariantList 
     }
     return false;
 }
-*/
 
-/*
-bool DataBase::inserIntoCurrenciesTableManualEditContactInfo(const QVariantList &data)
+bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
 {
-    QSqlQuery query;
-    query.prepare("INSERT INTO " T_CURRENCIES " ( " T_CURRENCIES_CONTACTS_TEL ", "
-                  T_CURRENCIES_CONTACTS_MAIL ", "
-                  T_CURRENCIES_CONTACTS_ADDRESS ", "
-                  T_CURRENCIES_CONTACTS_SLACK ", "
-                  T_CURRENCIES_CONTACTS_TELEGRAM " ) "
-                  "VALUES (:T_CURRENCIES_CONTACTS_TEL, "
-                                        ":T_CURRENCIES_CONTACTS_MAIL, "
-                                        ":T_CURRENCIES_CONTACTS_ADDRESS, "
-                                        ":T_CURRENCIES_CONTACTS_SLACK, "
-                                        ":T_CURRENCIES_CONTACTS_TELEGRAM)");
-    query.bindValue(":T_CURRENCIES_CONTACTS_TEL",       data[0].toString());
-    query.bindValue(":T_CURRENCIES_CONTACTS_MAIL",      data[1].toString());
-    query.bindValue(":T_CURRENCIES_CONTACTS_ADDRESS",   data[2].toString());
-    query.bindValue(":T_CURRENCIES_CONTACTS_SLACK",     data[3].toString());
-    query.bindValue(":T_CURRENCIES_CONTACTS_TELEGRAM",  data[4].toString());
-    if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES << " : CONTACTS_FIELDS";
-        qDebug() << query.lastError().text();
+    if(roles.empty()) {
         return false;
-    } else {
-        return true;
     }
-    return false;
-}
-*/
 
-/*
-bool DataBase::inserIntoRoadmapDatesPoolTable(const QVariantList &data)
-{
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_ROADMAPSDATESPOOL " ( "
-                  T_ROADMAPSDATESPOOL_CURRENCY_ID ", "
-                  T_ROADMAPSDATESPOOL_DATE ", "
-                  T_ROADMAPSDATESPOOL_EVENT_INFO " ) "
-                  "VALUES (:T_ROADMAPSDATESPOOL_CURRENCY_ID, "
-                                        ":T_ROADMAPSDATESPOOL_DATE, "
-                                        ":T_ROADMAPSDATESPOOL_EVENT_INFO)");
-    query.bindValue(":T_ROADMAPSDATESPOOL_CURRENCY_ID", data[0].toInt());
-    query.bindValue(":T_ROADMAPSDATESPOOL_DATE",        data[1].toDate());
-    query.bindValue(":T_ROADMAPSDATESPOOL_EVENT_INFO",  data[2].toString());
-    if(!query.exec()) {
-        qDebug() << "error insert into " << T_ROADMAPSDATESPOOL;
-        qDebug() << query.lastError().text();
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TOKENALG_NAME:
+            sql_cells.append(CELL_TOKENALG_NAME);
+            break;
+        case IDX_TOKENALG_INFO:
+            sql_cells.append(CELL_TOKENALG_INFO);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+
+    if(sql_cells.empty()) {
         return false;
-    } else {
-        return true;
     }
-    return false;
-}
-*/
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_TOKENALG " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
 
-/*
-bool DataBase::inserIntoTokenAlgTable(const QVariantList &data)
-{
-    QSqlQuery query;
-    query.prepare("INSERT INTO " T_TOKENALG " ( " T_TOKENALG_NAME ", "
-                  T_TOKENALG_INFO " ) "
-                  "VALUES (:T_TOKENALG_NAME, "
-                                        ":T_TOKENALG_INFO)");
-    query.bindValue(":T_TOKENALG_NAME",     data[0].toString());
-    query.bindValue(":T_TOKENALG_INFO",     data[1].toString());
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TOKENALG_NAME:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_TOKENALG_INFO:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
+
     if(!query.exec()) {
         qDebug() << "error insert into " << T_TOKENALG;
         qDebug() << query.lastError().text();
@@ -331,15 +391,61 @@ bool DataBase::inserIntoTokenAlgTable(const QVariantList &data)
     }
     return false;
 }
-*/
 
-/*
-bool DataBase::inserIntoAppAreasTable(const QVariantList &data)
+bool DataBase::inserIntoAreasTable(const QHash<int, QVariant> &roles)
 {
+    if(roles.empty()) {
+        return false;
+    }
+
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_AREAS " ( " T_AREAS_NAME " ) "
-                  "VALUES (:T_AREAS_NAME)");
-    query.bindValue(":T_AREAS_NAME",     data[0].toString());
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_AREAS_NAME:
+            sql_cells.append(CELL_AREAS_NAME);
+            break;
+        case IDX_AREAS_COMMENT:
+            sql_cells.append(CELL_AREAS_COMMENT);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_AREAS " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_AREAS_NAME:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_AREAS_COMMENT:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
     if(!query.exec()) {
         qDebug() << "error insert into " << T_AREAS;
         qDebug() << query.lastError().text();
@@ -349,7 +455,6 @@ bool DataBase::inserIntoAppAreasTable(const QVariantList &data)
     }
     return false;
 }
-*/
 
 /*
 bool DataBase::inserIntoTechnologiesThreadsPoolTable(const QVariantList &data)
