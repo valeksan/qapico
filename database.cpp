@@ -456,16 +456,61 @@ bool DataBase::inserIntoAreasTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
-/*
-bool DataBase::inserIntoTechnologiesThreadsPoolTable(const QVariantList &data)
+
+bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
 {
+    if(roles.empty()) {
+        return false;
+    }
+
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_TECHPOOL " ( " T_TECHPOOL_CURRENCY_ID ", "
-                  T_TECHPOOL_TECHNOLOGY_ID " ) "
-                  "VALUES (:T_TECHPOOL_CURRENCY_ID, "
-                                        ":T_TECHPOOL_TECHNOLOGY_ID)");
-    query.bindValue(":T_TECHPOOL_CURRENCY_ID",      data[0].toInt());
-    query.bindValue(":T_TECHPOOL_TECHNOLOGY_ID",    data[1].toInt());
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TECHPOOL_CURRENCY_SYMBOL:
+            sql_cells.append(CELL_TECHPOOL_CURRENCY_SYMBOL);
+            break;
+        case IDX_TECHPOOL_TECHNOLOGY_KEY:
+            sql_cells.append(CELL_TECHPOOL_TECHNOLOGY_KEY);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_TECHPOOL " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TECHPOOL_CURRENCY_SYMBOL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_TECHPOOL_TECHNOLOGY_KEY:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
     if(!query.exec()) {
         qDebug() << "error insert into " << T_TECHPOOL;
         qDebug() << query.lastError().text();
@@ -475,7 +520,70 @@ bool DataBase::inserIntoTechnologiesThreadsPoolTable(const QVariantList &data)
     }
     return false;
 }
-*/
+
+bool DataBase::inserIntoTechnologiesTable(const QHash<int, QVariant> &roles)
+{
+    if(roles.empty()) {
+        return false;
+    }
+
+    QSqlQuery query;
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TECHNOLOGIES_NAME:
+            sql_cells.append(CELL_TECHNOLOGIES_NAME);
+            break;
+        case IDX_TECHNOLOGIES_INFO:
+            sql_cells.append(CELL_TECHNOLOGIES_INFO);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_TECHNOLOGIES " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_TECHNOLOGIES_NAME:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_TECHNOLOGIES_INFO:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        default:
+            break;
+        }
+    }
+    if(!query.exec()) {
+        qDebug() << "error insert into " << T_TECHNOLOGIES;
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
 
 /*
 bool DataBase::inserIntoTechnologiesTable(const QVariantList &data)

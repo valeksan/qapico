@@ -34,9 +34,10 @@ public:
     bool inserIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
     bool inserIntoTokenAlgTable(const QHash<int,QVariant> &roles);
     bool inserIntoAreasTable(const QHash<int,QVariant> &roles);
+    bool inserIntoTechnologiesPoolTable(const QHash<int,QVariant> &roles);
+    bool inserIntoTechnologiesTable(const QHash<int,QVariant> &roles);
 
-    bool inserIntoTechnologiesThreadsPoolTable(const QVariantList &data);
-    bool inserIntoTechnologiesTable(const QVariantList &data);
+    //bool inserIntoTechnologiesTable(const QVariantList &data);
     bool inserIntoGithubHistoryPoolTable(const QVariantList &data);
     bool inserIntoMarketsTable(const QVariantList &data);
 
