@@ -25,7 +25,7 @@ void DataBase::connectToDataBase()
 
 /* Методы для вставки записей в таблицы
  * */
-bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
+bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -209,7 +209,7 @@ bool DataBase::inserIntoCurrenciesTable(const QHash<int,QVariant> &roles)
     return false;
 }
 
-bool DataBase::inserIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
+bool DataBase::insertIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -327,7 +327,7 @@ bool DataBase::inserIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
-bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
+bool DataBase::insertIntoConsensusAlgTable(const QHash<int, QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -341,11 +341,11 @@ bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TOKENALG_NAME:
-            sql_cells.append(CELL_TOKENALG_NAME);
+        case IDX_CONSENSUSALG_NAME:
+            sql_cells.append(CELL_CONSENSUSALG_NAME);
             break;
-        case IDX_TOKENALG_INFO:
-            sql_cells.append(CELL_TOKENALG_INFO);
+        case IDX_CONSENSUSALG_INFO:
+            sql_cells.append(CELL_CONSENSUSALG_INFO);
             break;
         default:
             break;
@@ -360,7 +360,7 @@ bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT OR REPLACE INTO " T_TOKENALG " ( ");
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_CONSENSUSALG " ( ");
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -371,10 +371,10 @@ bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TOKENALG_NAME:
+        case IDX_CONSENSUSALG_NAME:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
-        case IDX_TOKENALG_INFO:
+        case IDX_CONSENSUSALG_INFO:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         default:
@@ -383,7 +383,7 @@ bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
     }
 
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_TOKENALG;
+        qDebug() << "error insert into " << T_CONSENSUSALG;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -392,7 +392,7 @@ bool DataBase::inserIntoTokenAlgTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
-bool DataBase::inserIntoAreasTable(const QHash<int, QVariant> &roles)
+bool DataBase::insertIntoAreasTable(const QHash<int, QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -456,8 +456,7 @@ bool DataBase::inserIntoAreasTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
-
-bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
+bool DataBase::insertIntoDevInfoTable(const QHash<int, QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -471,11 +470,23 @@ bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TECHPOOL_CURRENCY_SYMBOL:
-            sql_cells.append(CELL_TECHPOOL_CURRENCY_SYMBOL);
+        case IDX_DEVINFO_CURRENCY_SYMBOL:
+            sql_cells.append(CELL_DEVINFO_CURRENCY_SYMBOL);
             break;
-        case IDX_TECHPOOL_TECHNOLOGY_KEY:
-            sql_cells.append(CELL_TECHPOOL_TECHNOLOGY_KEY);
+        case IDX_DEVINFO_PROJECT_NAME:
+            sql_cells.append(CELL_DEVINFO_PROJECT_NAME);
+            break;
+        case IDX_DEVINFO_START_DATETIME_STR:
+            sql_cells.append(CELL_DEVINFO_START_DATETIME_STR);
+            break;
+        case IDX_DEVINFO_LANGUAGE_USE:
+            sql_cells.append(CELL_DEVINFO_LANGUAGE_USE);
+            break;
+        case IDX_DEVINFO_LICENSE:
+            sql_cells.append(CELL_DEVINFO_LICENSE);
+            break;
+        case IDX_DEVINFO_F_IS_FORK:
+            sql_cells.append(CELL_DEVINFO_F_IS_FORK);
             break;
         default:
             break;
@@ -490,7 +501,7 @@ bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT OR REPLACE INTO " T_TECHPOOL " ( ");
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_DEVINFO " ( ");
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -501,18 +512,30 @@ bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TECHPOOL_CURRENCY_SYMBOL:
+        case IDX_DEVINFO_CURRENCY_SYMBOL:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
-        case IDX_TECHPOOL_TECHNOLOGY_KEY:
+        case IDX_DEVINFO_PROJECT_NAME:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_DEVINFO_START_DATETIME_STR:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_DEVINFO_LANGUAGE_USE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_DEVINFO_LICENSE:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_DEVINFO_F_IS_FORK:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toBool());
             break;
         default:
             break;
         }
     }
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_TECHPOOL;
+        qDebug() << "error insert into " << T_DEVINFO;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -521,7 +544,7 @@ bool DataBase::inserIntoTechnologiesPoolTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
-bool DataBase::inserIntoTechnologiesTable(const QHash<int, QVariant> &roles)
+bool DataBase::insertIntoGithubHistoryPoolTable(const QHash<int, QVariant> &roles)
 {
     if(roles.empty()) {
         return false;
@@ -535,11 +558,41 @@ bool DataBase::inserIntoTechnologiesTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TECHNOLOGIES_NAME:
-            sql_cells.append(CELL_TECHNOLOGIES_NAME);
+        case IDX_GITHUBPOOL_CURRENCY_SYMBOL:
+            sql_cells.append(CELL_GITHUBPOOL_CURRENCY_SYMBOL);
             break;
-        case IDX_TECHNOLOGIES_INFO:
-            sql_cells.append(CELL_TECHNOLOGIES_INFO);
+        case IDX_GITHUBPOOL_PROJECT_NAME:
+            sql_cells.append(CELL_GITHUBPOOL_PROJECT_NAME);
+            break;
+        case IDX_GITHUBPOOL_COMMITS_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_COMMITS_NUM);
+            break;
+        case IDX_GITHUBPOOL_BRANCHES_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_BRANCHES_NUM);
+            break;
+        case IDX_GITHUBPOOL_RELEASES_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_RELEASES_NUM);
+            break;
+        case IDX_GITHUBPOOL_CONTRIBUTORS_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_CONTRIBUTORS_NUM);
+            break;
+        case IDX_GITHUBPOOL_ISSUSES_OPEN_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_ISSUSES_OPEN_NUM);
+            break;
+        case IDX_GITHUBPOOL_ISSUSES_CLOSED_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_ISSUSES_CLOSED_NUM);
+            break;
+        case IDX_GITHUBPOOL_PULLREQ_OPEN_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_PULLREQ_OPEN_NUM);
+            break;
+        case IDX_GITHUBPOOL_PULLREQ_CLOSED_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_PULLREQ_CLOSED_NUM);
+            break;
+        case IDX_GITHUBPOOL_STARS_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_STARS_NUM);
+            break;
+        case IDX_GITHUBPOOL_FORKS_NUM:
+            sql_cells.append(CELL_GITHUBPOOL_FORKS_NUM);
             break;
         default:
             break;
@@ -554,7 +607,7 @@ bool DataBase::inserIntoTechnologiesTable(const QHash<int, QVariant> &roles)
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT OR REPLACE INTO " T_TECHNOLOGIES " ( ");
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_GITHUBPOOL " ( ");
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -565,93 +618,46 @@ bool DataBase::inserIntoTechnologiesTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_TECHNOLOGIES_NAME:
+        case IDX_GITHUBPOOL_CURRENCY_SYMBOL:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
-        case IDX_TECHNOLOGIES_INFO:
+        case IDX_GITHUBPOOL_PROJECT_NAME:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_GITHUBPOOL_COMMITS_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_BRANCHES_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_RELEASES_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_CONTRIBUTORS_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_ISSUSES_OPEN_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_ISSUSES_CLOSED_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_PULLREQ_OPEN_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_PULLREQ_CLOSED_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_STARS_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
+            break;
+        case IDX_GITHUBPOOL_FORKS_NUM:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toUInt());
             break;
         default:
             break;
         }
     }
-    if(!query.exec()) {
-        qDebug() << "error insert into " << T_TECHNOLOGIES;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-
-/*
-bool DataBase::inserIntoTechnologiesTable(const QVariantList &data)
-{
-    QSqlQuery query;
-    query.prepare("INSERT INTO " T_TECHNOLOGIES " ( " T_TECHNOLOGIES_NAME ", "
-                  T_TECHNOLOGIES_INFO " ) "
-                  "VALUES (:T_TECHNOLOGIES_NAME, "
-                                        ":T_TECHNOLOGIES_INFO)");
-    query.bindValue(":T_TECHNOLOGIES_NAME",     data[0].toString());
-    query.bindValue(":T_TECHNOLOGIES_INFO",     data[1].toString());
-    if(!query.exec()) {
-        qDebug() << "error insert into " << T_TECHNOLOGIES;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-*/
-
-/*
-bool DataBase::inserIntoGithubHistoryPoolTable(const QVariantList &data)
-{
-    QSqlQuery query;
-    query.prepare("INSERT INTO " T_GITHUBPOOL " ( " T_GITHUBPOOL_CURRENCY_ID ", "
-                  T_GITHUBPOOL_PROJECT_NAME ", "
-                  T_GITHUBPOOL_LANGUAGE ", "
-                  T_GITHUBPOOL_LICENSE ", "
-                  T_GITHUBPOOL_COMMITS_NUM ", "
-                  T_GITHUBPOOL_BRANCHES_NUM ", "
-                  T_GITHUBPOOL_RELEASES_NUM ", "
-                  T_GITHUBPOOL_CONTRIBUTORS_NUM ", "
-                  T_GITHUBPOOL_ISSUSES_OPEN_NUM ", "
-                  T_GITHUBPOOL_ISSUSES_CLOSED_NUM ", "
-                  T_GITHUBPOOL_PULLREQ_OPEN_NUM ", "
-                  T_GITHUBPOOL_PULLREQ_CLOSED_NUM ", "
-                  T_GITHUBPOOL_STARS_NUM ", "
-                  T_GITHUBPOOL_FORKS_NUM " ) "
-                  "VALUES (:T_GITHUBPOOL_CURRENCY_ID, "
-                                        ":T_GITHUBPOOL_PROJECT_NAME, "
-                                        ":T_GITHUBPOOL_LANGUAGE, "
-                                        ":T_GITHUBPOOL_LICENSE, "
-                                        ":T_GITHUBPOOL_COMMITS_NUM, "
-                                        ":T_GITHUBPOOL_BRANCHES_NUM, "
-                                        ":T_GITHUBPOOL_RELEASES_NUM, "
-                                        ":T_GITHUBPOOL_CONTRIBUTORS_NUM, "
-                                        ":T_GITHUBPOOL_ISSUSES_OPEN_NUM, "
-                                        ":T_GITHUBPOOL_ISSUSES_CLOSED_NUM, "
-                                        ":T_GITHUBPOOL_PULLREQ_OPEN_NUM, "
-                                        ":T_GITHUBPOOL_PULLREQ_CLOSED_NUM, "
-                                        ":T_GITHUBPOOL_STARS_NUM, "
-                                        ":T_GITHUBPOOL_FORKS_NUM)");
-    query.bindValue(":T_GITHUBPOOL_CURRENCY_ID",        data[0].toInt());
-    query.bindValue(":T_GITHUBPOOL_PROJECT_NAME",       data[1].toString());
-    query.bindValue(":T_GITHUBPOOL_LANGUAGE",           data[2].toString());
-    query.bindValue(":T_GITHUBPOOL_LICENSE",            data[3].toString());
-    query.bindValue(":T_GITHUBPOOL_COMMITS_NUM",        data[4].toInt());
-    query.bindValue(":T_GITHUBPOOL_BRANCHES_NUM",       data[5].toInt());
-    query.bindValue(":T_GITHUBPOOL_RELEASES_NUM",       data[6].toInt());
-    query.bindValue(":T_GITHUBPOOL_CONTRIBUTORS_NUM",   data[7].toInt());
-    query.bindValue(":T_GITHUBPOOL_ISSUSES_OPEN_NUM",   data[8].toInt());
-    query.bindValue(":T_GITHUBPOOL_ISSUSES_CLOSED_NUM", data[9].toInt());
-    query.bindValue(":T_GITHUBPOOL_PULLREQ_OPEN_NUM",   data[10].toInt());
-    query.bindValue(":T_GITHUBPOOL_PULLREQ_CLOSED_NUM", data[10].toInt());
-    query.bindValue(":T_GITHUBPOOL_STARS_NUM",          data[10].toInt());
-    query.bindValue(":T_GITHUBPOOL_FORKS_NUM",          data[10].toInt());
     if(!query.exec()) {
         qDebug() << "error insert into " << T_GITHUBPOOL;
         qDebug() << query.lastError().text();
@@ -661,35 +667,93 @@ bool DataBase::inserIntoGithubHistoryPoolTable(const QVariantList &data)
     }
     return false;
 }
-*/
 
-/*
-bool DataBase::inserIntoMarketsTable(const QVariantList &data)
+bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
 {
+    if(roles.empty()) {
+        return false;
+    }
+
     QSqlQuery query;
-    query.prepare("INSERT INTO " T_MARKETSPOOL " ( " T_MARKETSPOOL_CURRENCY_ID ", "
-                  T_MARKETSPOOL_MARKET ", "
-                  T_MARKETSPOOL_PAIR ", "
-                  T_MARKETSPOOL_VOL_24 ", "
-                  T_MARKETSPOOL_VOL_P ", "
-                  T_MARKETSPOOL_PRICE_USD ", "
-                  T_MARKETSPOOL_PRICE_BTC " ) "
-                  "VALUES (:T_MARKETSPOOL_CURRENCY_ID, "
-                                        ":T_MARKETSPOOL_MARKET, "
-                                        ":T_MARKETSPOOL_PAIR, "
-                                        ":T_MARKETSPOOL_VOL_24, "
-                                        ":T_MARKETSPOOL_VOL_P, "
-                                        ":T_MARKETSPOOL_PRICE_USD, "
-                                        ":T_MARKETSPOOL_PRICE_BTC)");
-    query.bindValue(":T_MARKETSPOOL_CURRENCY_ID",       data[0].toInt());
-    query.bindValue(":T_MARKETSPOOL_MARKET",            data[1].toString());
-    query.bindValue(":T_MARKETSPOOL_PAIR",              data[2].toString());
-    query.bindValue(":T_MARKETSPOOL_VOL_24",            data[3].toDouble());
-    query.bindValue(":T_MARKETSPOOL_VOL_P",             data[4].toDouble());
-    query.bindValue(":T_MARKETSPOOL_PRICE_USD",         data[5].toDouble());
-    query.bindValue(":T_MARKETSPOOL_PRICE_BTC",         data[6].toDouble());
+    QStringList sql_cells;
+    QStringList sql_values;
+    QString sql_cmd;
+    QList<int> keys = roles.keys();
+    for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_MARKETSPOOL_CURRENCY_SYMBOL:
+            sql_cells.append(CELL_MARKETSPOOL_CURRENCY_SYMBOL);
+            break;
+        case IDX_MARKETSPOOL_MARKET:
+            sql_cells.append(CELL_MARKETSPOOL_MARKET);
+            break;
+        case IDX_MARKETSPOOL_PAIR:
+            sql_cells.append(CELL_MARKETSPOOL_PAIR);
+            break;
+        case IDX_MARKETSPOOL_VOL_24:
+            sql_cells.append(CELL_MARKETSPOOL_VOL_24);
+            break;
+        case IDX_MARKETSPOOL_VOL_PERC:
+            sql_cells.append(CELL_MARKETSPOOL_VOL_PERC);
+            break;
+        case IDX_MARKETSPOOL_PRICE_USD:
+            sql_cells.append(CELL_MARKETSPOOL_PRICE_USD);
+            break;
+        case IDX_MARKETSPOOL_PRICE_BTC:
+            sql_cells.append(CELL_MARKETSPOOL_PRICE_BTC);
+            break;
+        default:
+            break;
+        }
+        if((fix_space_cnt + sql_cells.size() - 1) == i) {
+            sql_values.append(":val_" + key);
+        } else {
+            ++fix_space_cnt;
+        }
+    }
+
+    if(sql_cells.empty()) {
+        return false;
+    }
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_GITHUBPOOL " ( ");
+    sql_cmd += sql_cells.join(", ");
+    sql_cmd += ") VALUES ( ";
+    sql_cmd += sql_values.join(", ");
+    sql_cmd += " );";
+
+    query.prepare(sql_cmd);
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = keys.at(i);
+        switch (key) {
+        case IDX_MARKETSPOOL_CURRENCY_SYMBOL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_MARKETSPOOL_MARKET:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_MARKETSPOOL_PAIR:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
+        case IDX_MARKETSPOOL_VOL_24:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_MARKETSPOOL_VOL_PERC:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_MARKETSPOOL_PRICE_USD:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_MARKETSPOOL_PRICE_BTC:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        default:
+            break;
+        }
+    }
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_MARKETSPOOL;
+        qDebug() << "error insert into " << T_GITHUBPOOL;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -697,7 +761,6 @@ bool DataBase::inserIntoMarketsTable(const QVariantList &data)
     }
     return false;
 }
-*/
 
 /* Метод для открытия базы данных
  * */
@@ -743,53 +806,33 @@ void DataBase::closeDataBase()
 
 /* Методы для создания таблиц в базе данных
  * */
-bool DataBase::createAllTables()
-{
-    if((!this->createCurrenciesTable())
-            || (!this->createAppAreasTable())
-            || (!this->createDevInfoTable())
-            || (!this->createGithubHistoryPoolTable())
-            || (!this->createMarketsTable())
-            || (!this->createRoadmapDatesPoolTable())
-            || (!this->createTechnologiesTable())
-            || (!this->createTechnologiesThreadsPoolTable())
-            ) {
-        return false;
-    }
-    return true;
-}
-
-/*
 bool DataBase::createCurrenciesTable()
-{    
+{
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_CURRENCIES " ("
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "                // 0
-                            T_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"             // 1
-                            T_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"            // 2
-                            T_CURRENCIES_CALC_SUPPLY " UNSIGNED BIG INT NOT NULL,"  // 3
-                            T_CURRENCIES_VOLUME_USD " REAL NOT NULL,"               // 4
-                            T_CURRENCIES_VOLUME_BTC " REAL NOT NULL,"               // 5
-                            T_CURRENCIES_PRICE_USD " REAL NOT NULL,"                // 6
-                            T_CURRENCIES_PRICE_BTC " REAL NOT NULL,"                // 7
-                            T_CURRENCIES_MINEABLE " BOOLEAN NOT NULL,"              // 8
-                            T_CURRENCIES_IS_OPENSOURCE_PROJECT " BOOLEAN,"          // 9
-                            T_CURRENCIES_MANUAL_UPD_DATE " DATE,"                   // 10
-                            T_CURRENCIES_APP_AREAS_ID " INTEGER,"                   // 11
-                            T_CURRENCIES_REV_IDEA " TEXT,"                          // 12
-                            T_CURRENCIES_BASE_PLATFORM_ID " INTEGER,"               // 13
-                            T_CURRENCIES_CON_ALG_ID " INTEGER,"                     // 14
-                            T_CURRENCIES_IS_INTER_COMP " BOOLEAN,"                  // 15
-                            T_CURRENCIES_IS_WP_IN_CV " BOOLEAN,"                    // 16
-                            T_CURRENCIES_IS_OP_VACANCIES " BOOLEAN,"                // 17
-                            T_CURRENCIES_WP_URL " TEXT,"                            // 18
-                            T_CURRENCIES_RM_URL " TEXT,"                            // 19
-                            T_CURRENCIES_SITE_URL " TEXT,"                          // 20
-                            T_CURRENCIES_CONTACTS_TEL " VARCHAR(30),"               // 21
-                            T_CURRENCIES_CONTACTS_MAIL " VARCHAR(100),"             // 22
-                            T_CURRENCIES_CONTACTS_ADDRESS " TEXT,"                  // 23
-                            T_CURRENCIES_CONTACTS_SLACK " VARCHAR(100),"            // 24
-                            T_CURRENCIES_CONTACTS_TELEGRAM " VARCHAR(100)"          // 25
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            CELL_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"
+                            CELL_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"
+                            CELL_CURRENCIES_RANK " INTEGER,"
+                            CELL_CURRENCIES_PRICE_USD " REAL NOT NULL,"
+                            CELL_CURRENCIES_PRICE_BTC " REAL NOT NULL,"
+                            CELL_CURRENCIES_VOL24H_USD " REAL NOT NULL,"
+                            CELL_CURRENCIES_MARKETCAP_USD " REAL NOT NULL,"
+                            CELL_CURRENCIES_AVAIBLE_SUPPLY " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_TOTAL_SUPPLY " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_MAX_SUPPLY " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_PERCENT_CH_1H " REAL NOT NULL,"
+                            CELL_CURRENCIES_PERCENT_CH_24H " REAL NOT NULL,"
+                            CELL_CURRENCIES_PERCENT_CH_7D " REAL NOT NULL,"
+                            CELL_CURRENCIES_LAST_UPDATE_DATE " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_SL_TYPE " INTEGER,"
+                            CELL_CURRENCIES_SL_MINEABLE " BOOLEAN,"
+                            CELL_CURRENCIES_SL_SITE_URLS " TEXT,"
+                            CELL_CURRENCIES_SL_ANNONCEMENT_URLS " TEXT,"
+                            CELL_CURRENCIES_SL_CHAT_URLS " TEXT,"
+                            CELL_CURRENCIES_SL_EXPLORER_URLS " TEXT,"
+                            CELL_CURRENCIES_SL_MSGBOARD_URLS " TEXT,"
+                            CELL_CURRENCIES_SL_SRC_URLS " TEXT"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_CURRENCIES;
@@ -801,35 +844,25 @@ bool DataBase::createCurrenciesTable()
     return false;
 }
 
-bool DataBase::createRoadmapDatesPoolTable()
+bool DataBase::createCurrenciesMemTable()
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_ROADMAPSDATESPOOL " ("
+    if(!query.exec( "CREATE TABLE " T_CURRENCIES_MEM " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_ROADMAPSDATESPOOL_CURRENCY_ID " INTEGER NOT NULL,"
-                            T_ROADMAPSDATESPOOL_DATE " DATE NOT NULL,"
-                            T_ROADMAPSDATESPOOL_EVENT_INFO " TEXT"
+                            CELL_CURRENCIES_MEM_SYMBOL " VARCHAR(10) NOT NULL,"
+                            CELL_CURRENCIES_MEM_MANUAL_UPD_DATE " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_MEM_APP_AREAS_KEY " TEXT,"
+                            CELL_CURRENCIES_MEM_REV_IDEA " TEXT,"
+                            CELL_CURRENCIES_MEM_BASE_PLATFORM_KEY " TEXT,"
+                            CELL_CURRENCIES_MEM_CON_ALG_KEY " TEXT,"
+                            CELL_CURRENCIES_MEM_WP_URL " TEXT,"
+                            CELL_CURRENCIES_MEM_RM_URL " TEXT,"
+                            CELL_CURRENCIES_MEM_F_INTER_COMP " BOOLEAN,"
+                            CELL_CURRENCIES_MEM_F_WP_IN_CV " BOOLEAN,"
+                            CELL_CURRENCIES_MEM_CONTACTS " TEXT"
                         " )"
                     )) {
-        qDebug() << "DataBase: error of create " << T_ROADMAPSDATESPOOL;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-
-bool DataBase::createTokenAlgTable()
-{
-    QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_TOKENALG " ("
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_TOKENALG_NAME " VARCHAR(30) NOT NULL,"
-                            T_TOKENALG_INFO " TEXT"
-                        " )"
-                    )) {
-        qDebug() << "DataBase: error of create " << T_TOKENALG;
+        qDebug() << "DataBase: error of create " << T_CURRENCIES_MEM;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -843,7 +876,8 @@ bool DataBase::createAppAreasTable()
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_AREAS " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_AREAS_NAME " VARCHAR(50) NOT NULL"
+                            CELL_AREAS_NAME " VARCHAR(50) NOT NULL,"
+                            CELL_AREAS_COMMENT " TEXT"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_AREAS;
@@ -860,48 +894,15 @@ bool DataBase::createDevInfoTable()
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_DEVINFO " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_DEVINFO_TEAM_SIZE " INTEGER NOT NULL,"
-                            T_DEVINFO_START_DATE " INTEGER NOT NULL,"
-                            T_DEVINFO_LANGUAGES_USE " TEXT NOT NULL"
+                            CELL_DEVINFO_CURRENCY_SYMBOL " VARCHAR(10) NOT NULL,"
+                            CELL_DEVINFO_PROJECT_NAME " VARCHAR(50) NOT NULL,"
+                            CELL_DEVINFO_START_DATETIME_STR "VARCHAR(30) NOT NULL,"
+                            CELL_DEVINFO_LANGUAGE_USE " VARCHAR(20) NOT NULL,"
+                            CELL_DEVINFO_LICENSE " VARCHAR(50) NOT NULL,"
+                            CELL_DEVINFO_F_IS_FORK " BOOLEAN"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_DEVINFO;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-
-bool DataBase::createTechnologiesThreadsPoolTable()
-{
-    QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_TECHPOOL " ("
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_TECHPOOL_CURRENCY_ID " INTEGER NOT NULL,"
-                            T_TECHPOOL_TECHNOLOGY_ID " INTEGER NOT NULL"
-                        " )"
-                    )) {
-        qDebug() << "DataBase: error of create " << T_TECHPOOL;
-        qDebug() << query.lastError().text();
-        return false;
-    } else {
-        return true;
-    }
-    return false;
-}
-
-bool DataBase::createTechnologiesTable()
-{
-    QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_TECHNOLOGIES " ("
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_TECHNOLOGIES_NAME " VARCHAR(50) NOT NULL,"
-                            T_TECHNOLOGIES_INFO " TEXT NOT NULL"
-                        " )"
-                    )) {
-        qDebug() << "DataBase: error of create " << T_TECHNOLOGIES;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -915,20 +916,18 @@ bool DataBase::createGithubHistoryPoolTable()
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_GITHUBPOOL " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_GITHUBPOOL_CURRENCY_ID " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_PROJECT_NAME " VARCHAR(50) NOT NULL,"
-                            T_GITHUBPOOL_LANGUAGE " VARCHAR(20) NOT NULL,"
-                            T_GITHUBPOOL_LICENSE " VARCHAR(50) NOT NULL,"
-                            T_GITHUBPOOL_COMMITS_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_BRANCHES_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_RELEASES_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_CONTRIBUTORS_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_ISSUSES_OPEN_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_ISSUSES_CLOSED_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_PULLREQ_OPEN_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_PULLREQ_CLOSED_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_STARS_NUM " INTEGER NOT NULL,"
-                            T_GITHUBPOOL_FORKS_NUM " INTEGER NOT NULL"
+                            CELL_GITHUBPOOL_CURRENCY_SYMBOL " VARCHAR(10) NOT NULL,"
+                            CELL_GITHUBPOOL_PROJECT_NAME " VARCHAR(50) NOT NULL,"
+                            CELL_GITHUBPOOL_COMMITS_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_BRANCHES_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_RELEASES_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_CONTRIBUTORS_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_ISSUSES_OPEN_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_ISSUSES_CLOSED_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_PULLREQ_OPEN_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_PULLREQ_CLOSED_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_STARS_NUM " INTEGER NOT NULL,"
+                            CELL_GITHUBPOOL_FORKS_NUM " INTEGER NOT NULL"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_GITHUBPOOL;
@@ -945,13 +944,13 @@ bool DataBase::createMarketsTable()
     QSqlQuery query;
     if(!query.exec( "CREATE TABLE " T_MARKETSPOOL " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                            T_MARKETSPOOL_CURRENCY_ID " INTEGER NOT NULL,"
-                            T_MARKETSPOOL_MARKET " VARCHAR(20) NOT NULL,"
-                            T_MARKETSPOOL_PAIR " VARCHAR(20) NOT NULL,"
-                            T_MARKETSPOOL_VOL_24 " REAL NOT NULL,"
-                            T_MARKETSPOOL_VOL_P " REAL NOT NULL,"
-                            T_MARKETSPOOL_PRICE_USD " REAL NOT NULL,"
-                            T_MARKETSPOOL_PRICE_BTC " REAL NOT NULL"
+                            CELL_MARKETSPOOL_CURRENCY_SYMBOL " INTEGER NOT NULL,"
+                            CELL_MARKETSPOOL_MARKET " VARCHAR(20) NOT NULL,"
+                            CELL_MARKETSPOOL_PAIR " VARCHAR(20) NOT NULL,"
+                            CELL_MARKETSPOOL_VOL_24 " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_VOL_PERC " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_PRICE_USD " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_PRICE_BTC " REAL NOT NULL"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_MARKETSPOOL;
@@ -962,4 +961,18 @@ bool DataBase::createMarketsTable()
     }
     return false;
 }
-*/
+
+bool DataBase::createAllTables()
+{
+    if((!this->createCurrenciesTable())
+            || (!this->createCurrenciesMemTable())
+            || (!this->createConsensusAlgTable())
+            || (!this->createAppAreasTable())
+            || (!this->createDevInfoTable())
+            || (!this->createGithubHistoryPoolTable())
+            || (!this->createMarketsTable())
+            ) {
+        return false;
+    }
+    return true;
+}

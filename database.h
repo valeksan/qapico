@@ -30,17 +30,13 @@ public:
      * */
     void connectToDataBase();
 
-    bool inserIntoCurrenciesTable(const QHash<int,QVariant> &roles);
-    bool inserIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
-    bool inserIntoTokenAlgTable(const QHash<int,QVariant> &roles);
-    bool inserIntoAreasTable(const QHash<int,QVariant> &roles);
-    bool inserIntoTechnologiesPoolTable(const QHash<int,QVariant> &roles);
-    bool inserIntoTechnologiesTable(const QHash<int,QVariant> &roles);
-
-    //bool inserIntoTechnologiesTable(const QVariantList &data);
-    bool inserIntoGithubHistoryPoolTable(const QVariantList &data);
-    bool inserIntoMarketsTable(const QVariantList &data);
-
+    bool insertIntoCurrenciesTable(const QHash<int,QVariant> &roles);
+    bool insertIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
+    bool insertIntoConsensusAlgTable(const QHash<int,QVariant> &roles);
+    bool insertIntoAreasTable(const QHash<int,QVariant> &roles);
+    bool insertIntoDevInfoTable(const QHash<int,QVariant> &roles);
+    bool insertIntoGithubHistoryPoolTable(const QHash<int,QVariant> &roles);
+    bool insertIntoMarketsTable(const QHash<int,QVariant> &roles);
 
 private:
     // Сам объект базы данных, с которым будет производиться работа
@@ -53,16 +49,16 @@ private:
     bool openDataBase();
     bool restoreDataBase();
     void closeDataBase();
-    bool createAllTables();
+
     bool createCurrenciesTable();
-    bool createRoadmapDatesPoolTable();
-    bool createTokenAlgTable();
+    bool createCurrenciesMemTable();
+    bool createConsensusAlgTable();
     bool createAppAreasTable();
     bool createDevInfoTable();
-    bool createTechnologiesThreadsPoolTable();
-    bool createTechnologiesTable();
     bool createGithubHistoryPoolTable();
     bool createMarketsTable();
+
+    bool createAllTables();
 
 signals:
 

@@ -60,10 +60,6 @@ enum CurrencyFastUpdCellIdx {
     IDX_CURRENCIES_SL_MSGBOARD_URLS,
     IDX_CURRENCIES_SL_SRC_URLS,
 };
-// - for method slow upd:
-enum CurrencySlowUpdCellIdx {
-
-};
 // current currency type variant
 enum CurrencyTypes {
     CURCENCY_TYPE_COIN,
@@ -111,13 +107,13 @@ enum CurrencyMemUpdCellIdx {
 //////////////////////////////////////////////////////////////////////////
 /// Таблица: Алгоритмы консенсуса
 //////////////////////////////////////////////////////////////////////////
-#define T_TOKENALG                          "TableTokenAlg"
-#define CELL_TOKENALG_NAME                      "Name"
-#define CELL_TOKENALG_INFO                      "Info"
+#define T_CONSENSUSALG                          "TableConsensusAlg"
+#define CELL_CONSENSUSALG_NAME                      "Name"
+#define CELL_CONSENSUSALG_INFO                      "Info"
 // - indexes for method upd:
 enum TokenAlgUpdCellIdx {
-    IDX_TOKENALG_NAME = 0,
-    IDX_TOKENALG_INFO,
+    IDX_CONSENSUSALG_NAME = 0,
+    IDX_CONSENSUSALG_INFO,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,38 +132,20 @@ enum AreasUpdCellIdx {
 /// Таблица: Информация по разрабатываемому проекту
 //////////////////////////////////////////////////////////////////////////
 #define T_DEVINFO                           "TableDevInfo"
-#define CELL_DEVINFO_TEAM_SIZE                  "TeamSize"
-#define CELL_DEVINFO_START_DATE                 "StartDate"
-#define CELL_DEVINFO_LANGUAGES_USE              "LanguagesUse"
+#define CELL_DEVINFO_CURRENCY_SYMBOL            "Symbol"
+#define CELL_DEVINFO_PROJECT_NAME               "Project"
+#define CELL_DEVINFO_START_DATETIME_STR         "StartDateTime"
+#define CELL_DEVINFO_LANGUAGE_USE               "LanguageUse"
+#define CELL_DEVINFO_LICENSE                    "License"
+#define CELL_DEVINFO_F_IS_FORK                  "ForkThis"
 // - indexes for method upd:
 enum DevInfoUpdCellIdx {
-    IDX_DEVINFO_TEAM_SIZE = 0,
-    IDX_DEVINFO_START_DATE,
-    IDX_DEVINFO_LANGUAGES_USE,
-};
-
-//////////////////////////////////////////////////////////////////////////
-/// Таблица: Применяемые техногогии в проектах
-//////////////////////////////////////////////////////////////////////////
-#define T_TECHPOOL                          "TableTechnologiesThreadsPool"
-#define CELL_TECHPOOL_CURRENCY_SYMBOL           "Symbol"
-#define CELL_TECHPOOL_TECHNOLOGY_KEY            "Technology_key"
-// - indexes for method upd:
-enum TechPoolUpdCellIdx {
-    IDX_TECHPOOL_CURRENCY_SYMBOL = 0,
-    IDX_TECHPOOL_TECHNOLOGY_KEY,
-};
-
-//////////////////////////////////////////////////////////////////////////
-/// Таблица: Технологии
-//////////////////////////////////////////////////////////////////////////
-#define T_TECHNOLOGIES                      "TableTechnologies"
-#define CELL_TECHNOLOGIES_NAME                  "Name"
-#define CELL_TECHNOLOGIES_INFO                  "Info"
-// - indexes for method upd:
-enum TechnologiesUpdCellIdx {
-    IDX_TECHNOLOGIES_NAME = 0,
-    IDX_TECHNOLOGIES_INFO,
+    IDX_DEVINFO_CURRENCY_SYMBOL = 0,
+    IDX_DEVINFO_PROJECT_NAME,
+    IDX_DEVINFO_START_DATETIME_STR,
+    IDX_DEVINFO_LANGUAGE_USE,
+    IDX_DEVINFO_LICENSE,
+    IDX_DEVINFO_F_IS_FORK,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -176,8 +154,6 @@ enum TechnologiesUpdCellIdx {
 #define T_GITHUBPOOL                       "TableGithubHistoryPool"
 #define CELL_GITHUBPOOL_CURRENCY_SYMBOL         "Symbol"
 #define CELL_GITHUBPOOL_PROJECT_NAME            "ProjectName"
-#define CELL_GITHUBPOOL_LANGUAGE                "Language"
-#define CELL_GITHUBPOOL_LICENSE                 "License"
 #define CELL_GITHUBPOOL_COMMITS_NUM             "CommitsNum"
 #define CELL_GITHUBPOOL_BRANCHES_NUM            "BranchesNum"
 #define CELL_GITHUBPOOL_RELEASES_NUM            "ReleasesNum"
@@ -192,8 +168,6 @@ enum TechnologiesUpdCellIdx {
 enum GithubPoolUpdCellIdx {
     IDX_GITHUBPOOL_CURRENCY_SYMBOL = 0,
     IDX_GITHUBPOOL_PROJECT_NAME,
-    IDX_GITHUBPOOL_LANGUAGE,
-    IDX_GITHUBPOOL_LICENSE,
     IDX_GITHUBPOOL_COMMITS_NUM,
     IDX_GITHUBPOOL_BRANCHES_NUM,
     IDX_GITHUBPOOL_RELEASES_NUM,
