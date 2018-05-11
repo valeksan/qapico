@@ -97,6 +97,7 @@ ParserResult Parser::_parseSubPage()
     QList<QString> listAnnouncementValues;
     QList<QString> listSourceCodeValues;
     QList<QString> listTagsValues;
+    QList<QHash<int,QString>> listMarkets;
 
     try {
         currentNode = currentNode.getElementsByTagName(HtmlTag::BODY).front();
@@ -106,6 +107,7 @@ ParserResult Parser::_parseSubPage()
         result.error = Parser::ERR_BAD_SYNTAX;
         return result;
     }
+    // get urls info
     try {
         currentNodes = currentNode.getElementsByTagName(HtmlTag::UL);
         for(uint i = 0; i < currentNodes.size(); i++) {
@@ -168,6 +170,52 @@ ParserResult Parser::_parseSubPage()
     result.values.insert(KEY_INF_LIST_ANNOUNCEMENT_URLS, QVariant::fromValue(listAnnouncementValues));
     result.values.insert(KEY_INF_LIST_SOURCECODE_URLS, QVariant::fromValue(listSourceCodeValues));
     result.values.insert(KEY_INF_LIST_TAGS, QVariant::fromValue(listTagsValues));
+
+    // get markets info
+    currentNode = doc.rootNode();
+    currentNode = currentNode.getElementById("markets-table");
+    QGumboNodes nodesTrOdd, nodesTrEven;
+    nodesTrOdd = currentNode.getElementsByClassName("Odd");
+    nodesTrEven = currentNode.getElementsByClassName("Even");
+    QGumboNodes nodesTr = nodesTrOdd;
+    nodesTr.insert(nodesTr.end(), nodesTrEven.begin(), nodesTrEven.end());
+    for(uint i = 0; i < nodesTr.size(); i++) {
+        try {
+            QHash<int,QString> market;
+            QGumboNodes nodesTd = nodesTr[i].getElementsByTagName(HtmlTag::TD);
+            QString attrMarketName = nodesTd[1].getAttribute("data-sort");
+            QString attrPair = nodesTd[2].getAttribute("data-sort");
+            QGumboNode urlNode = nodesTd[2].getElementsByTagName(HtmlTag::A).front();
+            QString attrUrl = urlNode.getAttribute("href");
+            QGumboNode vol24Node = nodesTd[3].getElementsByClassName("volume").front();
+            QString attrVol24_usd = vol24Node.getAttribute("data-usd");
+            QString attrVol24_btc = vol24Node.getAttribute("data-btc");
+            QGumboNode priceNode = nodesTd[4].getElementsByClassName("price").front();
+            QString attrPrice_usd = priceNode.getAttribute("data-usd");
+            QString attrPrice_btc = priceNode.getAttribute("data-btc");
+            QGumboNode volPercNode = nodesTd[5].getElementsByTagName(HtmlTag::SPAN).front();
+            QString attrVolPerc = volPercNode.getAttribute("data-format-value");
+            QString attrSymbol = attrPair.section('/',0,0);
+            QString attrExSymbol = attrPair.section('/',-1,-1);
+
+            market.insert(KEY_MARKET_SYMBOL, attrSymbol);
+            market.insert(KEY_MARKET_NAME, attrMarketName);
+            market.insert(KEY_MARKET_EX_SYMBOL, attrExSymbol);
+            market.insert(KEY_MARKET_VOL24_USD, attrVol24_usd);
+            market.insert(KEY_MARKET_VOL24_BTC, attrVol24_btc);
+            market.insert(KEY_MARKET_VOL_PERC, attrVolPerc);
+            market.insert(KEY_MARKET_PRICE_USD, attrPrice_usd);
+            market.insert(KEY_MARKET_PRICE_BTC, attrPrice_btc);
+            market.insert(KEY_MARKET_URL, attrUrl);
+
+            listMarkets.append(market);
+        } catch(const std::out_of_range& oor) {
+            Q_UNUSED(oor)
+            continue;
+        }
+    }
+    result.values.insert(KEY_INF_LIST_MARKETS, QVariant::fromValue(listMarkets));
+    //...
     result.error = Parser::ERR_OK;
     /*
     qDebug() << "listWebsiteValues:"    << listWebsiteValues;
@@ -177,6 +225,7 @@ ParserResult Parser::_parseSubPage()
     qDebug() << "listAnnouncementValues" << listAnnouncementValues;
     qDebug() << "listSourceCodeValues"  << listSourceCodeValues;
     qDebug() << "listTagsValues"        << listTagsValues;
+    qDebug() << "listMarketsValues"        << listMarkets;
     */
     return result;
 }

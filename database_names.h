@@ -186,20 +186,24 @@ enum GithubPoolUpdCellIdx {
 #define T_MARKETSPOOL                       "TableMarkets"
 #define CELL_MARKETSPOOL_CURRENCY_SYMBOL        "Symbol"
 #define CELL_MARKETSPOOL_MARKET                 "Market"
-#define CELL_MARKETSPOOL_PAIR                   "Pair"
-#define CELL_MARKETSPOOL_VOL_24                 "Volume24"
+#define CELL_MARKETSPOOL_EX_SYMBOL              "ExSymbol"
+#define CELL_MARKETSPOOL_VOL24_USD              "Volume24Usd"
+#define CELL_MARKETSPOOL_VOL24_BTC              "Volume24Btc"
 #define CELL_MARKETSPOOL_VOL_PERC               "VolumePerc"
 #define CELL_MARKETSPOOL_PRICE_USD              "PriceUsd"
 #define CELL_MARKETSPOOL_PRICE_BTC              "PriceBtc"
+#define CELL_MARKETSPOOL_URL                    "Url"
 // - indexes for method upd:
 enum MarketPoolUpdCellIdx {
     IDX_MARKETSPOOL_CURRENCY_SYMBOL = 0,
     IDX_MARKETSPOOL_MARKET,
-    IDX_MARKETSPOOL_PAIR,
-    IDX_MARKETSPOOL_VOL_24,
+    IDX_MARKETSPOOL_EX_SYMBOL,
+    IDX_MARKETSPOOL_VOL24_USD,
+    IDX_MARKETSPOOL_VOL24_BTC,
     IDX_MARKETSPOOL_VOL_PERC,
     IDX_MARKETSPOOL_PRICE_USD,
     IDX_MARKETSPOOL_PRICE_BTC,
+    IDX_MARKETSPOOL_URL,
 };
 
 #endif // DATABASE_NAMES_H

@@ -688,11 +688,14 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
         case IDX_MARKETSPOOL_MARKET:
             sql_cells.append(CELL_MARKETSPOOL_MARKET);
             break;
-        case IDX_MARKETSPOOL_PAIR:
-            sql_cells.append(CELL_MARKETSPOOL_PAIR);
+        case IDX_MARKETSPOOL_EX_SYMBOL:
+            sql_cells.append(CELL_MARKETSPOOL_EX_SYMBOL);
             break;
-        case IDX_MARKETSPOOL_VOL_24:
-            sql_cells.append(CELL_MARKETSPOOL_VOL_24);
+        case IDX_MARKETSPOOL_VOL24_USD:
+            sql_cells.append(CELL_MARKETSPOOL_VOL24_USD);
+            break;
+        case IDX_MARKETSPOOL_VOL24_BTC:
+            sql_cells.append(CELL_MARKETSPOOL_VOL24_BTC);
             break;
         case IDX_MARKETSPOOL_VOL_PERC:
             sql_cells.append(CELL_MARKETSPOOL_VOL_PERC);
@@ -702,6 +705,9 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
             break;
         case IDX_MARKETSPOOL_PRICE_BTC:
             sql_cells.append(CELL_MARKETSPOOL_PRICE_BTC);
+            break;
+        case IDX_MARKETSPOOL_URL:
+            sql_cells.append(CELL_MARKETSPOOL_URL);
             break;
         default:
             break;
@@ -716,7 +722,7 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT OR REPLACE INTO " T_GITHUBPOOL " ( ");
+    sql_cmd = QString("INSERT OR REPLACE INTO " T_MARKETSPOOL " ( ");
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -733,10 +739,13 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
         case IDX_MARKETSPOOL_MARKET:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
-        case IDX_MARKETSPOOL_PAIR:
+        case IDX_MARKETSPOOL_EX_SYMBOL:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
-        case IDX_MARKETSPOOL_VOL_24:
+        case IDX_MARKETSPOOL_VOL24_USD:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
+            break;
+        case IDX_MARKETSPOOL_VOL24_BTC:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
             break;
         case IDX_MARKETSPOOL_VOL_PERC:
@@ -748,12 +757,15 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
         case IDX_MARKETSPOOL_PRICE_BTC:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toDouble());
             break;
+        case IDX_MARKETSPOOL_URL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
+            break;
         default:
             break;
         }
     }
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_GITHUBPOOL;
+        qDebug() << "error insert into " << T_MARKETSPOOL;
         qDebug() << query.lastError().text();
         return false;
     } else {
@@ -946,11 +958,13 @@ bool DataBase::createMarketsTable()
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_MARKETSPOOL_CURRENCY_SYMBOL " INTEGER NOT NULL,"
                             CELL_MARKETSPOOL_MARKET " VARCHAR(20) NOT NULL,"
-                            CELL_MARKETSPOOL_PAIR " VARCHAR(20) NOT NULL,"
-                            CELL_MARKETSPOOL_VOL_24 " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_EX_SYMBOL " VARCHAR(20) NOT NULL,"
+                            CELL_MARKETSPOOL_VOL24_USD " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_VOL24_BTC " REAL NOT NULL,"
                             CELL_MARKETSPOOL_VOL_PERC " REAL NOT NULL,"
                             CELL_MARKETSPOOL_PRICE_USD " REAL NOT NULL,"
-                            CELL_MARKETSPOOL_PRICE_BTC " REAL NOT NULL"
+                            CELL_MARKETSPOOL_PRICE_BTC " REAL NOT NULL,"
+                            CELL_MARKETSPOOL_URL " TEXT"
                         " )"
                     )) {
         qDebug() << "DataBase: error of create " << T_MARKETSPOOL;

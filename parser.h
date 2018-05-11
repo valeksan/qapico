@@ -59,6 +59,18 @@ public:
         KEY_INF_LIST_ANNOUNCEMENT_URLS,
         KEY_INF_LIST_SOURCECODE_URLS,
         KEY_INF_LIST_TAGS,
+        KEY_INF_LIST_MARKETS,
+    };
+    enum MarketsArgsKeys {
+        KEY_MARKET_SYMBOL = 0,
+        KEY_MARKET_NAME,
+        KEY_MARKET_EX_SYMBOL,
+        KEY_MARKET_VOL24_USD,
+        KEY_MARKET_VOL24_BTC,
+        KEY_MARKET_VOL_PERC,
+        KEY_MARKET_PRICE_USD,
+        KEY_MARKET_PRICE_BTC,
+        KEY_MARKET_URL,
     };
     enum GithubTablesKeys {
         KEY_GHB_TABLE_PROJECTS,
