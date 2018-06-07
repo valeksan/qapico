@@ -173,7 +173,7 @@ ParserResult Parser::_parseSubPage()
 
     // get markets info
     currentNode = doc.rootNode();
-    currentNode = currentNode.getElementById("markets-table");
+    currentNode = currentNode.getElementById("markets-table").front();
     QGumboNodes nodesTrOdd, nodesTrEven;
     nodesTrOdd = currentNode.getElementsByClassName("Odd");
     nodesTrEven = currentNode.getElementsByClassName("Even");

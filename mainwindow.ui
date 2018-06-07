@@ -47,7 +47,7 @@
      <rect>
       <x>20</x>
       <y>530</y>
-      <width>151</width>
+      <width>241</width>
       <height>31</height>
      </rect>
     </property>
@@ -69,7 +69,7 @@ QPushButton:pressed
 </string>
     </property>
     <property name="text">
-     <string>Обновить</string>
+     <string>GET BASE CUR</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">
@@ -80,6 +80,66 @@ QPushButton:pressed
       <width>501</width>
       <height>501</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonUpdate_2">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>530</y>
+      <width>241</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	border: 2px outset grey;
+	border-radius: 10px;
+	background-color: gainsboro;
+	font-size: 14px;
+}
+
+QPushButton:pressed
+{
+	border: 1px inset grey;
+}
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>GET INFO CUR</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonUpdate_3">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>530</y>
+      <width>241</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	border: 2px outset grey;
+	border-radius: 10px;
+	background-color: gainsboro;
+	font-size: 14px;
+}
+
+QPushButton:pressed
+{
+	border: 1px inset grey;
+}
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>GET DEV CUR</string>
     </property>
    </widget>
   </widget>

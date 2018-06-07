@@ -31,6 +31,10 @@ bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles)
         return false;
     }
 
+    if(!createCurrenciesTable(true)) {
+        return false;
+    }
+
     QSqlQuery query;
     QStringList sql_cells;
     QStringList sql_values;
@@ -80,6 +84,9 @@ bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles)
             break;
         case IDX_CURRENCIES_LAST_UPDATE_DATE:
             sql_cells.append(CELL_CURRENCIES_LAST_UPDATE_DATE);
+            break;
+        case IDX_CURRENCIES_CMC_PAGE_URL:
+            sql_cells.append(CELL_CURRENCIES_CMC_PAGE_URL);
             break;
         case IDX_CURRENCIES_SL_TYPE:
             sql_cells.append(CELL_CURRENCIES_SL_TYPE);
@@ -169,6 +176,9 @@ bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles)
             break;
         case IDX_CURRENCIES_LAST_UPDATE_DATE:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toLongLong()); // datetime stamp
+            break;
+        case IDX_CURRENCIES_CMC_PAGE_URL:
+            query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         case IDX_CURRENCIES_SL_TYPE:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toInt());
@@ -818,10 +828,10 @@ void DataBase::closeDataBase()
 
 /* Методы для создания таблиц в базе данных
  * */
-bool DataBase::createCurrenciesTable()
+bool DataBase::createCurrenciesTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_CURRENCIES " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_CURRENCIES " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_CURRENCIES_NAME " VARCHAR(255) NOT NULL,"
                             CELL_CURRENCIES_SYMBOL " VARCHAR(10) NOT NULL,"
@@ -837,6 +847,7 @@ bool DataBase::createCurrenciesTable()
                             CELL_CURRENCIES_PERCENT_CH_24H " REAL NOT NULL,"
                             CELL_CURRENCIES_PERCENT_CH_7D " REAL NOT NULL,"
                             CELL_CURRENCIES_LAST_UPDATE_DATE " UNSIGNED BIG INT NOT NULL,"
+                            CELL_CURRENCIES_CMC_PAGE_URL " TEXT,"
                             CELL_CURRENCIES_SL_TYPE " INTEGER,"
                             CELL_CURRENCIES_SL_MINEABLE " BOOLEAN,"
                             CELL_CURRENCIES_SL_SITE_URLS " TEXT,"
@@ -845,7 +856,7 @@ bool DataBase::createCurrenciesTable()
                             CELL_CURRENCIES_SL_EXPLORER_URLS " TEXT,"
                             CELL_CURRENCIES_SL_MSGBOARD_URLS " TEXT,"
                             CELL_CURRENCIES_SL_SRC_URLS " TEXT"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_CURRENCIES;
         qDebug() << query.lastError().text();
@@ -856,10 +867,10 @@ bool DataBase::createCurrenciesTable()
     return false;
 }
 
-bool DataBase::createCurrenciesMemTable()
+bool DataBase::createCurrenciesMemTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_CURRENCIES_MEM " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_CURRENCIES_MEM " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_CURRENCIES_MEM_SYMBOL " VARCHAR(10) NOT NULL,"
                             CELL_CURRENCIES_MEM_MANUAL_UPD_DATE " UNSIGNED BIG INT NOT NULL,"
@@ -872,7 +883,7 @@ bool DataBase::createCurrenciesMemTable()
                             CELL_CURRENCIES_MEM_F_INTER_COMP " BOOLEAN,"
                             CELL_CURRENCIES_MEM_F_WP_IN_CV " BOOLEAN,"
                             CELL_CURRENCIES_MEM_CONTACTS " TEXT"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_CURRENCIES_MEM;
         qDebug() << query.lastError().text();
@@ -883,14 +894,32 @@ bool DataBase::createCurrenciesMemTable()
     return false;
 }
 
-bool DataBase::createAppAreasTable()
+bool DataBase::createConsensusAlgTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_AREAS " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_CONSENSUSALG " ("
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                            CELL_CONSENSUSALG_NAME " VARCHAR(20) NOT NULL,"
+                            CELL_CONSENSUSALG_INFO " TEXT"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
+                    )) {
+        qDebug() << "DataBase: error of create " << T_CONSENSUSALG;
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
+
+bool DataBase::createAppAreasTable(bool flagIfNotExist)
+{
+    QSqlQuery query;
+    if(!query.exec( QString("CREATE TABLE %1" T_AREAS " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_AREAS_NAME " VARCHAR(50) NOT NULL,"
                             CELL_AREAS_COMMENT " TEXT"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_AREAS;
         qDebug() << query.lastError().text();
@@ -901,10 +930,10 @@ bool DataBase::createAppAreasTable()
     return false;
 }
 
-bool DataBase::createDevInfoTable()
+bool DataBase::createDevInfoTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_DEVINFO " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_DEVINFO " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_DEVINFO_CURRENCY_SYMBOL " VARCHAR(10) NOT NULL,"
                             CELL_DEVINFO_PROJECT_NAME " VARCHAR(50) NOT NULL,"
@@ -912,7 +941,7 @@ bool DataBase::createDevInfoTable()
                             CELL_DEVINFO_LANGUAGE_USE " VARCHAR(20) NOT NULL,"
                             CELL_DEVINFO_LICENSE " VARCHAR(50) NOT NULL,"
                             CELL_DEVINFO_F_IS_FORK " BOOLEAN"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_DEVINFO;
         qDebug() << query.lastError().text();
@@ -923,10 +952,10 @@ bool DataBase::createDevInfoTable()
     return false;
 }
 
-bool DataBase::createGithubHistoryPoolTable()
+bool DataBase::createGithubHistoryPoolTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_GITHUBPOOL " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_GITHUBPOOL " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_GITHUBPOOL_CURRENCY_SYMBOL " VARCHAR(10) NOT NULL,"
                             CELL_GITHUBPOOL_PROJECT_NAME " VARCHAR(50) NOT NULL,"
@@ -940,7 +969,7 @@ bool DataBase::createGithubHistoryPoolTable()
                             CELL_GITHUBPOOL_PULLREQ_CLOSED_NUM " INTEGER NOT NULL,"
                             CELL_GITHUBPOOL_STARS_NUM " INTEGER NOT NULL,"
                             CELL_GITHUBPOOL_FORKS_NUM " INTEGER NOT NULL"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_GITHUBPOOL;
         qDebug() << query.lastError().text();
@@ -951,10 +980,10 @@ bool DataBase::createGithubHistoryPoolTable()
     return false;
 }
 
-bool DataBase::createMarketsTable()
+bool DataBase::createMarketsTable(bool flagIfNotExist)
 {
     QSqlQuery query;
-    if(!query.exec( "CREATE TABLE " T_MARKETSPOOL " ("
+    if(!query.exec( QString("CREATE TABLE %1" T_MARKETSPOOL " ("
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                             CELL_MARKETSPOOL_CURRENCY_SYMBOL " INTEGER NOT NULL,"
                             CELL_MARKETSPOOL_MARKET " VARCHAR(20) NOT NULL,"
@@ -965,7 +994,7 @@ bool DataBase::createMarketsTable()
                             CELL_MARKETSPOOL_PRICE_USD " REAL NOT NULL,"
                             CELL_MARKETSPOOL_PRICE_BTC " REAL NOT NULL,"
                             CELL_MARKETSPOOL_URL " TEXT"
-                        " )"
+                        " )").arg((flagIfNotExist?"IF NOT EXISTS ":""))
                     )) {
         qDebug() << "DataBase: error of create " << T_MARKETSPOOL;
         qDebug() << query.lastError().text();

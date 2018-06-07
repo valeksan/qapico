@@ -106,6 +106,17 @@ public:
     int type() const;
     void setType(int type);
 
+    QString textErr() {
+        switch (m_result.error) {
+        case ERR_INIT: return "Ошибка без инициализации!";
+        case ERR_BAD_SYNTAX: return "Ошибка синтаксиса, возможно сервис поменял разметку.";
+        case ERR_NO_DATA_FOUND: return "Ошибка, получены пустые данные от сервиса.";
+        case ERR_UNKNOW_TYPE: return "Непонятная ошибка.";
+        default:
+            return "Чертовщина какаято! o_O";
+        }
+    }
+
 private:
     QByteArray m_document;
     ParserResult m_result;

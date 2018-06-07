@@ -24,6 +24,7 @@
 #define CELL_CURRENCIES_PERCENT_CH_24H          "Per24h"
 #define CELL_CURRENCIES_PERCENT_CH_7D           "Per7d"
 #define CELL_CURRENCIES_LAST_UPDATE_DATE        "UpdStamp"
+#define CELL_CURRENCIES_CMC_PAGE_URL            "CmcUrl"
 // slow updateble cells
 #define CELL_CURRENCIES_SL_TYPE                    "Type"
 #define CELL_CURRENCIES_SL_MINEABLE                "Mineable"
@@ -50,6 +51,7 @@ enum CurrencyFastUpdCellIdx {
     IDX_CURRENCIES_PERCENT_CH_24H,
     IDX_CURRENCIES_PERCENT_CH_7D,
     IDX_CURRENCIES_LAST_UPDATE_DATE,
+    IDX_CURRENCIES_CMC_PAGE_URL,
     // - for method slow upd:
     IDX_CURRENCIES_SL_TYPE,
     IDX_CURRENCIES_SL_MINEABLE,

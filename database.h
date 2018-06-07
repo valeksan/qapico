@@ -50,13 +50,13 @@ private:
     bool restoreDataBase();
     void closeDataBase();
 
-    bool createCurrenciesTable();
-    bool createCurrenciesMemTable();
-    bool createConsensusAlgTable();
-    bool createAppAreasTable();
-    bool createDevInfoTable();
-    bool createGithubHistoryPoolTable();
-    bool createMarketsTable();
+    bool createCurrenciesTable(bool flagIfNotExist = false);
+    bool createCurrenciesMemTable(bool flagIfNotExist = false);
+    bool createConsensusAlgTable(bool flagIfNotExist = false);
+    bool createAppAreasTable(bool flagIfNotExist = false);
+    bool createDevInfoTable(bool flagIfNotExist = false);
+    bool createGithubHistoryPoolTable(bool flagIfNotExist = false);
+    bool createMarketsTable(bool flagIfNotExist = false);
 
     bool createAllTables();
 

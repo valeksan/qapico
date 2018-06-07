@@ -11,6 +11,10 @@
 #include "exts_funcs.h"
 #include "parser.h"
 #include "downloader.h"
+#include "core.h"
+
+#include "enums.h"
+#include "taskresult.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,12 +28,25 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void registerTasks();
+
 private slots:
     void on_pushButtonUpdate_clicked();
+
+    void slotFinishedTask(long id, int type, QVariantList argsList, QVariant result);
 
 private:
     Ui::MainWindow *ui;
     DataBase *db;
+    Core *core;
+
+    bool m_isBaseCurrenciesInit;
+    bool m_isInfoCurrenciesInit;
+    bool m_isDevCurrenciesInit;
+
+public:
+signals:
+    void showWarrningMsgDialog(QString title, QString msg, bool alert = false);
 
 };
 
