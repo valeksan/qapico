@@ -56,5 +56,10 @@ unix|win32: LIBS += -L$$PWD/libs/QGumboParser/QGumboParser/ -lQGumboParser
 INCLUDEPATH += $$PWD/libs/QGumboParser/QGumboParser
 DEPENDPATH += $$PWD/libs/QGumboParser/QGumboParser
 
+LIBS += -lsqlite3
+
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/libs/QGumboParser/QGumboParser/QGumboParser.lib
 else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/libs/QGumboParser/QGumboParser/libQGumboParser.a
+
+#INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/sqlite
+#SOURCES += $$[QT_INSTALL_PREFIX]/src/3rdparty/sqlite/sqlite3.c

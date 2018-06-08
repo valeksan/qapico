@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
     db = new DataBase();
     db->connectToDataBase();
 
+//    if(db->isInMemory())
+//        db->sqliteDBMemFile(QString("%1.mem").arg(db->getDatabaseFilename()), false);
+
     connect(core, &Core::finishedTask, this, &MainWindow::slotFinishedTask);
 
     if(!isAppPathExists()) {
@@ -42,8 +45,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+//    qDebug() << "##1";
+//    db->sqliteDBMemFile(QString("%1.mem").arg(db->getDatabaseFilename()), true);
+//    qDebug() << "##2";
     core->deleteLater();
     db->deleteLater();
+//    qDebug() << "##3";
     delete ui;
 }
 
@@ -68,11 +75,31 @@ void MainWindow::registerTasks()
                     qDebug() << "save to DB ...";
                     int size = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
                     QStringList listId = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().keys();
-                    QHash<int, QVariant> hValues;
+
                     for(int i=0; i<size; i++) {
-                        hValues.insert(IDX_CURRENCIES_CMC_PAGE_URL, resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS).toHash().value(listId.at(i)));
-                        hValues.insert(IDX_CURRENCIES_SYMBOL, listId.at(i));
+                        QHash<int, QVariant> hValues;
+                        //hValues.insert(IDX_CURRENCIES_NAME, resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().value(listId.at(i)).value<QHash<int,QVariant> >().value(Parser::KEY_CYR_NAME_ATTR));
+                        hValues.insert(IDX_CURRENCIES_ID, listId.at(i));
+                        hValues.insert(IDX_CURRENCIES_NAME, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_NAME_ATTR));
+                        hValues.insert(IDX_CURRENCIES_SYMBOL, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_CYMBOL_ATTR));
+                        hValues.insert(IDX_CURRENCIES_RANK, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_RANK_ATTR));
+                        hValues.insert(IDX_CURRENCIES_PRICE_USD, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PRICE_USD_ATTR));
+                        hValues.insert(IDX_CURRENCIES_PRICE_BTC, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PRICE_BTC_ATTR));
+                        hValues.insert(IDX_CURRENCIES_VOL24H_USD, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_24H_VOLUME_USD_ATTR));
+                        hValues.insert(IDX_CURRENCIES_MARKETCAP_USD, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_MARKETCAP_USD_ATTR));
+                        hValues.insert(IDX_CURRENCIES_AVAIBLE_SUPPLY, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_AVAIBLE_SUPPLY_ATTR));
+                        hValues.insert(IDX_CURRENCIES_TOTAL_SUPPLY, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_TOTAL_SUPPLY_ATTR));
+                        hValues.insert(IDX_CURRENCIES_MAX_SUPPLY, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_MAX_SUPPLY_ATTR));
+                        hValues.insert(IDX_CURRENCIES_PERCENT_CH_1H, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PERCENT_CH_1H_ATTR));
+                        hValues.insert(IDX_CURRENCIES_PERCENT_CH_24H, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PERCENT_CH_24H_ATTR));
+                        hValues.insert(IDX_CURRENCIES_PERCENT_CH_7D, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PERCENT_CH_7D_ATTR));
+                        hValues.insert(IDX_CURRENCIES_LAST_UPDATE_DATE, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_DATE_LAST_UPDATED_ATTR));
+                        hValues.insert(IDX_CURRENCIES_CMC_PAGE_URL, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS));
                         //
+                        if(!db->insertIntoCurrenciesTable(hValues, false)) {
+                            qDebug() << "fail id: " << listId.at(i);
+                        }
+                        qDebug() << (i+1)*100.0/size << "%";
                     }
                     //db->insertIntoCurrenciesTable()
                 } else {

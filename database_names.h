@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 #define T_CURRENCIES                        "TableCurrencies"
 // fast updateble cells
+#define CELL_CURRENCIES_ID                      "sid"
 #define CELL_CURRENCIES_NAME                    "Name"
 #define CELL_CURRENCIES_SYMBOL                  "Symbol"
 #define CELL_CURRENCIES_RANK                    "Rank"
@@ -37,7 +38,8 @@
 // cell indexes of the list arg on method to adds values
 enum CurrencyFastUpdCellIdx {
     // - for method fast upd:
-    IDX_CURRENCIES_NAME = 0,
+    IDX_CURRENCIES_ID = 0,
+    IDX_CURRENCIES_NAME,
     IDX_CURRENCIES_SYMBOL,
     IDX_CURRENCIES_RANK,
     IDX_CURRENCIES_PRICE_USD,

@@ -117,6 +117,23 @@ public:
         }
     }
 
+    static QVariant getResultValue(ParserResult& result, QString id, int type_parse, int key_table, int key_attr = -1) {
+        switch (type_parse) {
+        case TYPE_PARSE_MAIN_PAGE:
+            switch (key_table) {
+            case KEY_MAIN_TABLE_CURRENCIES:
+                return result.values.value(key_table).toHash().value(id).value<QHash<int,QVariant> >().value(key_attr);
+            case KEY_MAIN_TABLE_CURRENCIES_INFO_URLS:
+                return result.values.value(key_table).toHash().value(id);
+            default:
+                break;
+            }
+        default:
+            break;
+        }
+        return QVariant();
+    }
+
 private:
     QByteArray m_document;
     ParserResult m_result;

@@ -11,8 +11,11 @@
 #include <QDate>
 #include <QDebug>
 #include <QByteArray>
+#include <QSqlDriver>
 
 #include "database_names.h"
+
+#include <sqlite3.h>
 
 //class QueryResult {
 //public:
@@ -30,13 +33,15 @@ public:
      * */
     void connectToDataBase();
 
-    bool insertIntoCurrenciesTable(const QHash<int,QVariant> &roles);
+    bool insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, bool orReplace = true);
     bool insertIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
     bool insertIntoConsensusAlgTable(const QHash<int,QVariant> &roles);
     bool insertIntoAreasTable(const QHash<int,QVariant> &roles);
     bool insertIntoDevInfoTable(const QHash<int,QVariant> &roles);
     bool insertIntoGithubHistoryPoolTable(const QHash<int,QVariant> &roles);
     bool insertIntoMarketsTable(const QHash<int,QVariant> &roles);
+
+    QString getDatabaseFilename();
 
 private:
     // Сам объект базы данных, с которым будет производиться работа
