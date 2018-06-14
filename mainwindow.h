@@ -30,6 +30,8 @@ public:
 
     void registerTasks();
 
+    void displayCurrenciesFromBase();
+
 private slots:
     void on_pushButtonUpdate_clicked();
 

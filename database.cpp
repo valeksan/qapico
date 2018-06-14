@@ -800,6 +800,71 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
+QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int> columns_ids)
+{
+    QList<QHash<int, QVariant> > result;
+    QStringList sql_cells;
+
+    if(columns_ids.empty())
+        return result;
+
+    for(int i = 0; i < keys.size(); i++) {
+        int key = columns_ids.at(i);
+        switch (key) {
+        case IDX_CURRENCIES_ID:
+            sql_cells.append(CELL_CURRENCIES_ID);
+            break;
+        case IDX_CURRENCIES_NAME:
+            sql_cells.append(CELL_CURRENCIES_NAME);
+            break;
+        case IDX_CURRENCIES_SYMBOL:
+            sql_cells.append(CELL_CURRENCIES_SYMBOL);
+            break;
+        case IDX_CURRENCIES_RANK:
+            sql_cells.append(CELL_CURRENCIES_RANK);
+            break;
+        case IDX_CURRENCIES_PRICE_USD:
+            sql_cells.append(CELL_CURRENCIES_PRICE_USD);
+            break;
+        case IDX_CURRENCIES_PRICE_BTC:
+            sql_cells.append(CELL_CURRENCIES_PRICE_BTC);
+            break;
+        case IDX_CURRENCIES_VOL24H_USD:
+            sql_cells.append(CELL_CURRENCIES_VOL24H_USD);
+            break;
+        case IDX_CURRENCIES_MARKETCAP_USD:
+            sql_cells.append(CELL_CURRENCIES_MARKETCAP_USD);
+            break;
+        case IDX_CURRENCIES_AVAIBLE_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_AVAIBLE_SUPPLY);
+            break;
+        case IDX_CURRENCIES_TOTAL_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_TOTAL_SUPPLY);
+            break;
+        case IDX_CURRENCIES_MAX_SUPPLY:
+            sql_cells.append(CELL_CURRENCIES_MAX_SUPPLY);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_1H:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_1H);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_24H:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_24H);
+            break;
+        case IDX_CURRENCIES_PERCENT_CH_7D:
+            sql_cells.append(CELL_CURRENCIES_PERCENT_CH_7D);
+            break;
+        case IDX_CURRENCIES_LAST_UPDATE_DATE:
+            sql_cells.append(CELL_CURRENCIES_LAST_UPDATE_DATE);
+            break;
+        case IDX_CURRENCIES_CMC_PAGE_URL:
+            sql_cells.append(CELL_CURRENCIES_CMC_PAGE_URL);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 QString DataBase::getDatabaseFilename() {
     return base_path.path() + QDir::separator() + DATABASE_NAME;
 }

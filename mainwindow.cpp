@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     db = new DataBase();
     db->connectToDataBase();
@@ -75,7 +75,7 @@ void MainWindow::registerTasks()
                     qDebug() << "save to DB ...";
                     int size = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
                     QStringList listId = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().keys();
-
+                    ui->label->setText("Обновление списка проектов ...");
                     for(int i=0; i<size; i++) {
                         QHash<int, QVariant> hValues;
                         //hValues.insert(IDX_CURRENCIES_NAME, resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().value(listId.at(i)).value<QHash<int,QVariant> >().value(Parser::KEY_CYR_NAME_ATTR));
@@ -96,12 +96,14 @@ void MainWindow::registerTasks()
                         hValues.insert(IDX_CURRENCIES_LAST_UPDATE_DATE, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_DATE_LAST_UPDATED_ATTR));
                         hValues.insert(IDX_CURRENCIES_CMC_PAGE_URL, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS));
                         //
-                        if(!db->insertIntoCurrenciesTable(hValues, false)) {
+                        if(!db->insertIntoCurrenciesTable(hValues)) {
                             qDebug() << "fail id: " << listId.at(i);
                         }
-                        qDebug() << (i+1)*100.0/size << "%";
+                        //qDebug() << (i+1)*100.0/size << "%";
+                        ui->progressBar->setValue((i+1)*100/size);
                     }
                     //db->insertIntoCurrenciesTable()
+                    ui->label->setText("Обновление списка проектов завершено");
                 } else {
                     result.error = ERR_TASK_PARSE_PAGE_FAIL;
                     result.errorExt1 = resultParseCMC.error;
@@ -124,6 +126,26 @@ void MainWindow::registerTasks()
     } catch (const CoreException &ex) {
         emit showWarrningMsgDialog("Core error register task", ex.message(), true);
     }
+
+    // - задача - получение подробной информации по каждому проекту из C-M-C
+    try {
+        core->registerTask(TASK_UPDATE_CURRENCIES_INFO, [this](QVariantList args = QVariantList()) -> TaskResult
+        {
+            Q_UNUSED(args)
+            TaskResult result;
+            DownloadError err;
+            //...
+            return result;
+        }, 1);
+    } catch (const CoreException &ex) {
+        emit showWarrningMsgDialog("Core error register task", ex.message(), true);
+    }
+}
+
+void MainWindow::displayCurrenciesFromBase()
+{
+    //
+    ui->tableWidgetCurrencies->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 void MainWindow::on_pushButtonUpdate_clicked()
@@ -203,5 +225,7 @@ void MainWindow::slotFinishedTask(long id, int type, QVariantList argsList, QVar
     Q_UNUSED(argsList)
     if(type == TASK_UPDATE_CURRENCIES_BASE && result.value<TaskResult>().error == ERR_TASK_OK) {
         m_isBaseCurrenciesInit = true;
+        // метод отображения списка из базы тут будет
+        displayCurrenciesFromBase();
     }
 }

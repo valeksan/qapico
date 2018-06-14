@@ -15,7 +15,7 @@
 
 #include "database_names.h"
 
-#include <sqlite3.h>
+//#include <sqlite3.h>
 
 //class QueryResult {
 //public:
@@ -40,6 +40,8 @@ public:
     bool insertIntoDevInfoTable(const QHash<int,QVariant> &roles);
     bool insertIntoGithubHistoryPoolTable(const QHash<int,QVariant> &roles);
     bool insertIntoMarketsTable(const QHash<int,QVariant> &roles);
+
+    QList<QHash<int,QVariant> > selectFromCurrenciesTable(const QList<int> columns_ids);
 
     QString getDatabaseFilename();
 
