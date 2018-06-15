@@ -45,6 +45,8 @@ public:
 
     QString getDatabaseFilename();
 
+    static QString getCellNameByIdx(int table_idx, int cell_idx);
+
 private:
     // Сам объект базы данных, с которым будет производиться работа
     QSqlDatabase    db;

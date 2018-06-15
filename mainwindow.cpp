@@ -144,6 +144,40 @@ void MainWindow::registerTasks()
 
 void MainWindow::displayCurrenciesFromBase()
 {
+    QList<int> list_cell_idx;
+    list_cell_idx.append(IDX_CURRENCIES_ID);
+    list_cell_idx.append(IDX_CURRENCIES_NAME);
+    list_cell_idx.append(IDX_CURRENCIES_SYMBOL);
+    list_cell_idx.append(IDX_CURRENCIES_RANK);
+    list_cell_idx.append(IDX_CURRENCIES_PRICE_USD);
+    list_cell_idx.append(IDX_CURRENCIES_PRICE_BTC);
+    list_cell_idx.append(IDX_CURRENCIES_VOL24H_USD);
+    list_cell_idx.append(IDX_CURRENCIES_MARKETCAP_USD);
+    list_cell_idx.append(IDX_CURRENCIES_AVAIBLE_SUPPLY);
+    list_cell_idx.append(IDX_CURRENCIES_TOTAL_SUPPLY);
+    list_cell_idx.append(IDX_CURRENCIES_MAX_SUPPLY);
+    list_cell_idx.append(IDX_CURRENCIES_PERCENT_CH_1H);
+    list_cell_idx.append(IDX_CURRENCIES_PERCENT_CH_24H);
+    list_cell_idx.append(IDX_CURRENCIES_PERCENT_CH_7D);
+    list_cell_idx.append(IDX_CURRENCIES_LAST_UPDATE_DATE);
+    list_cell_idx.append(IDX_CURRENCIES_CMC_PAGE_URL);
+    QList<QHash<int,QVariant> > resultList = db->selectFromCurrenciesTable(list_cell_idx);
+
+    if(resultList.empty()) {
+        return;
+    }
+
+    ui->tableWidgetCurrencies->clearContents();
+//    qDebug() << "resultList[size]:" << resultList.size();
+    for(int i=0; i<resultList.size(); i++) ui->tableWidgetCurrencies->insertRow(i);
+    for(int i=0; i<resultList.size(); i++) {
+        int row_index = resultList.value(i).value(IDX_CURRENCIES_RANK).toInt()-1;
+//        qDebug() << "row:" << row_index;
+        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 0), resultList.value(i).value(IDX_CURRENCIES_NAME), Qt::DisplayRole);
+        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 1), resultList.value(i).value(IDX_CURRENCIES_SYMBOL), Qt::DisplayRole);
+        //ui->tableWidgetCurrencies->model()->setData()
+    }
+    ui->tableWidgetCurrencies->sortByColumn(0);
     //
     ui->tableWidgetCurrencies->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }

@@ -75,7 +75,7 @@ enum CurrencyTypes {
 //////////////////////////////////////////////////////////////////////////
 #define T_CURRENCIES_MEM                    "TableCurrenciesMemory"
 // - manual edit fields
-#define CELL_CURRENCIES_MEM_SYMBOL              "Symbol"
+#define CELL_CURRENCIES_MEM_ID                  "sid"
 #define CELL_CURRENCIES_MEM_MANUAL_UPD_DATE     "ManualUpdateDate"
 #define CELL_CURRENCIES_MEM_APP_AREAS_KEY       "AppAreas_key"
 #define CELL_CURRENCIES_MEM_REV_IDEA            "RevolutionIdea"
@@ -95,7 +95,7 @@ enum CurrencyTypes {
     **/
 // - indexes for method upd:
 enum CurrencyMemUpdCellIdx {
-    IDX_CURRENCIES_MEM_SYMBOL = 0,
+    IDX_CURRENCIES_MEM_ID = 0,
     IDX_CURRENCIES_MEM_MANUAL_UPD_DATE,
     IDX_CURRENCIES_MEM_APP_AREAS_KEY,
     IDX_CURRENCIES_MEM_REV_IDEA,
@@ -136,7 +136,7 @@ enum AreasUpdCellIdx {
 /// Таблица: Информация по разрабатываемому проекту
 //////////////////////////////////////////////////////////////////////////
 #define T_DEVINFO                           "TableDevInfo"
-#define CELL_DEVINFO_CURRENCY_SYMBOL            "Symbol"
+#define CELL_DEVINFO_CURRENCY_ID                "cur_sid"
 #define CELL_DEVINFO_PROJECT_NAME               "Project"
 #define CELL_DEVINFO_START_DATETIME_STR         "StartDateTime"
 #define CELL_DEVINFO_LANGUAGE_USE               "LanguageUse"
@@ -144,7 +144,7 @@ enum AreasUpdCellIdx {
 #define CELL_DEVINFO_F_IS_FORK                  "ForkThis"
 // - indexes for method upd:
 enum DevInfoUpdCellIdx {
-    IDX_DEVINFO_CURRENCY_SYMBOL = 0,
+    IDX_DEVINFO_CURRENCY_ID = 0,
     IDX_DEVINFO_PROJECT_NAME,
     IDX_DEVINFO_START_DATETIME_STR,
     IDX_DEVINFO_LANGUAGE_USE,
@@ -156,7 +156,7 @@ enum DevInfoUpdCellIdx {
 /// Таблица: Оценочные параметры по GitHub
 //////////////////////////////////////////////////////////////////////////
 #define T_GITHUBPOOL                       "TableGithubHistoryPool"
-#define CELL_GITHUBPOOL_CURRENCY_SYMBOL         "Symbol"
+#define CELL_GITHUBPOOL_CURRENCY_ID             "cur_sid"
 #define CELL_GITHUBPOOL_PROJECT_NAME            "ProjectName"
 #define CELL_GITHUBPOOL_COMMITS_NUM             "CommitsNum"
 #define CELL_GITHUBPOOL_BRANCHES_NUM            "BranchesNum"
@@ -170,7 +170,7 @@ enum DevInfoUpdCellIdx {
 #define CELL_GITHUBPOOL_FORKS_NUM               "ForksNum"
 // - indexes for method upd:
 enum GithubPoolUpdCellIdx {
-    IDX_GITHUBPOOL_CURRENCY_SYMBOL = 0,
+    IDX_GITHUBPOOL_CURRENCY_ID = 0,
     IDX_GITHUBPOOL_PROJECT_NAME,
     IDX_GITHUBPOOL_COMMITS_NUM,
     IDX_GITHUBPOOL_BRANCHES_NUM,
@@ -188,7 +188,7 @@ enum GithubPoolUpdCellIdx {
 /// Таблица: Оценка по биржам
 //////////////////////////////////////////////////////////////////////////
 #define T_MARKETSPOOL                       "TableMarkets"
-#define CELL_MARKETSPOOL_CURRENCY_SYMBOL        "Symbol"
+#define CELL_MARKETSPOOL_CURRENCY_ID            "cur_sid"
 #define CELL_MARKETSPOOL_MARKET                 "Market"
 #define CELL_MARKETSPOOL_EX_SYMBOL              "ExSymbol"
 #define CELL_MARKETSPOOL_VOL24_USD              "Volume24Usd"
@@ -199,7 +199,7 @@ enum GithubPoolUpdCellIdx {
 #define CELL_MARKETSPOOL_URL                    "Url"
 // - indexes for method upd:
 enum MarketPoolUpdCellIdx {
-    IDX_MARKETSPOOL_CURRENCY_SYMBOL = 0,
+    IDX_MARKETSPOOL_CURRENCY_ID = 0,
     IDX_MARKETSPOOL_MARKET,
     IDX_MARKETSPOOL_EX_SYMBOL,
     IDX_MARKETSPOOL_VOL24_USD,
@@ -208,6 +208,19 @@ enum MarketPoolUpdCellIdx {
     IDX_MARKETSPOOL_PRICE_USD,
     IDX_MARKETSPOOL_PRICE_BTC,
     IDX_MARKETSPOOL_URL,
+};
+
+//////////////////////////////////////////////////////////////////////////
+/// Все таблицы (индексы)
+//////////////////////////////////////////////////////////////////////////
+enum AllTablesIdx {
+    IDX_TABLE_CURRENCIES = 0,
+    IDX_TABLE_CURRENCIES_MEM,
+    IDX_TABLE_CONSENSUSALG,
+    IDX_TABLE_AREAS,
+    IDX_TABLE_DEVINFO,
+    IDX_TABLE_GITHUBPOOL,
+    IDX_TABLE_MARKETSPOOL,
 };
 
 #endif // DATABASE_NAMES_H

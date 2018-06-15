@@ -249,8 +249,8 @@ bool DataBase::insertIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_CURRENCIES_MEM_SYMBOL:
-            sql_cells.append(CELL_CURRENCIES_MEM_SYMBOL);
+        case IDX_CURRENCIES_MEM_ID:
+            sql_cells.append(CELL_CURRENCIES_MEM_ID);
             break;
         case IDX_CURRENCIES_MEM_MANUAL_UPD_DATE:
             sql_cells.append(CELL_CURRENCIES_MEM_MANUAL_UPD_DATE);
@@ -305,7 +305,7 @@ bool DataBase::insertIntoCurrenciesMemTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_CURRENCIES_MEM_SYMBOL:
+        case IDX_CURRENCIES_MEM_ID:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         case IDX_CURRENCIES_MEM_MANUAL_UPD_DATE:
@@ -496,8 +496,8 @@ bool DataBase::insertIntoDevInfoTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_DEVINFO_CURRENCY_SYMBOL:
-            sql_cells.append(CELL_DEVINFO_CURRENCY_SYMBOL);
+        case IDX_DEVINFO_CURRENCY_ID:
+            sql_cells.append(CELL_DEVINFO_CURRENCY_ID);
             break;
         case IDX_DEVINFO_PROJECT_NAME:
             sql_cells.append(CELL_DEVINFO_PROJECT_NAME);
@@ -538,7 +538,7 @@ bool DataBase::insertIntoDevInfoTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_DEVINFO_CURRENCY_SYMBOL:
+        case IDX_DEVINFO_CURRENCY_ID:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         case IDX_DEVINFO_PROJECT_NAME:
@@ -584,8 +584,8 @@ bool DataBase::insertIntoGithubHistoryPoolTable(const QHash<int, QVariant> &role
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_GITHUBPOOL_CURRENCY_SYMBOL:
-            sql_cells.append(CELL_GITHUBPOOL_CURRENCY_SYMBOL);
+        case IDX_GITHUBPOOL_CURRENCY_ID:
+            sql_cells.append(CELL_GITHUBPOOL_CURRENCY_ID);
             break;
         case IDX_GITHUBPOOL_PROJECT_NAME:
             sql_cells.append(CELL_GITHUBPOOL_PROJECT_NAME);
@@ -644,7 +644,7 @@ bool DataBase::insertIntoGithubHistoryPoolTable(const QHash<int, QVariant> &role
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_GITHUBPOOL_CURRENCY_SYMBOL:
+        case IDX_GITHUBPOOL_CURRENCY_ID:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         case IDX_GITHUBPOOL_PROJECT_NAME:
@@ -708,8 +708,8 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
     for(int i = 0, fix_space_cnt = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_MARKETSPOOL_CURRENCY_SYMBOL:
-            sql_cells.append(CELL_MARKETSPOOL_CURRENCY_SYMBOL);
+        case IDX_MARKETSPOOL_CURRENCY_ID:
+            sql_cells.append(CELL_MARKETSPOOL_CURRENCY_ID);
             break;
         case IDX_MARKETSPOOL_MARKET:
             sql_cells.append(CELL_MARKETSPOOL_MARKET);
@@ -759,7 +759,7 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
     for(int i = 0; i < keys.size(); i++) {
         int key = keys.at(i);
         switch (key) {
-        case IDX_MARKETSPOOL_CURRENCY_SYMBOL:
+        case IDX_MARKETSPOOL_CURRENCY_ID:
             query.bindValue(QString(":val_%1").arg(key), roles.value(key).toString());
             break;
         case IDX_MARKETSPOOL_MARKET:
@@ -806,11 +806,10 @@ QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int
     QStringList sql_cells;
 
     if(columns_ids.empty())
-        return result;
+        return result;    
 
-    for(int i = 0; i < keys.size(); i++) {
-        int key = columns_ids.at(i);
-        switch (key) {
+    for(int i = 0; i < columns_ids.size(); i++) {
+        switch (columns_ids.at(i)) {
         case IDX_CURRENCIES_ID:
             sql_cells.append(CELL_CURRENCIES_ID);
             break;
@@ -863,10 +862,150 @@ QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int
             break;
         }
     }
+
+    QString sql_cmd = QString("SELECT %1 FROM %2;").arg(sql_cells.join(", ")).arg(T_CURRENCIES);
+    QSqlQuery qry;
+    qry.prepare(sql_cmd);
+
+    if(!qry.exec()) {
+        qDebug() << "prepare_query:" << sql_cmd;
+        qDebug() << "last_query:" << qry.lastQuery();
+        qDebug() << "Error select, " << qry.lastError().text();
+        return result;
+    }
+    int counter = 0;
+    while(qry.next()) {
+        QHash<int,QVariant> item;
+        for(int i=0; i<columns_ids.size(); i++) {
+            item.insert(columns_ids.at(i), qry.value(DataBase::getCellNameByIdx(IDX_TABLE_CURRENCIES, columns_ids.at(i))));
+        }
+//        qDebug() << item.value(1);
+        result.append(item);
+        ++counter;
+    }
+//    qDebug()<<"counter="<<counter;
+    return result;
 }
 
 QString DataBase::getDatabaseFilename() {
     return base_path.path() + QDir::separator() + DATABASE_NAME;
+}
+
+QString DataBase::getCellNameByIdx(int table_idx, int cell_idx)
+{
+    switch (table_idx) {
+    case IDX_TABLE_CURRENCIES:
+        switch (cell_idx) {
+        case IDX_CURRENCIES_ID:                     return CELL_CURRENCIES_ID;
+        case IDX_CURRENCIES_NAME:                   return CELL_CURRENCIES_NAME;
+        case IDX_CURRENCIES_SYMBOL:                 return CELL_CURRENCIES_SYMBOL;
+        case IDX_CURRENCIES_RANK:                   return CELL_CURRENCIES_RANK;
+        case IDX_CURRENCIES_PRICE_USD:              return CELL_CURRENCIES_PRICE_USD;
+        case IDX_CURRENCIES_PRICE_BTC:              return CELL_CURRENCIES_PRICE_BTC;
+        case IDX_CURRENCIES_VOL24H_USD:             return CELL_CURRENCIES_VOL24H_USD;
+        case IDX_CURRENCIES_MARKETCAP_USD:          return CELL_CURRENCIES_MARKETCAP_USD;
+        case IDX_CURRENCIES_AVAIBLE_SUPPLY:         return CELL_CURRENCIES_AVAIBLE_SUPPLY;
+        case IDX_CURRENCIES_TOTAL_SUPPLY:           return CELL_CURRENCIES_TOTAL_SUPPLY;
+        case IDX_CURRENCIES_MAX_SUPPLY:             return CELL_CURRENCIES_MAX_SUPPLY;
+        case IDX_CURRENCIES_PERCENT_CH_1H:          return CELL_CURRENCIES_PERCENT_CH_1H;
+        case IDX_CURRENCIES_PERCENT_CH_24H:         return CELL_CURRENCIES_PERCENT_CH_24H;
+        case IDX_CURRENCIES_PERCENT_CH_7D:          return CELL_CURRENCIES_PERCENT_CH_7D;
+        case IDX_CURRENCIES_LAST_UPDATE_DATE:       return CELL_CURRENCIES_LAST_UPDATE_DATE;
+        case IDX_CURRENCIES_CMC_PAGE_URL:           return CELL_CURRENCIES_CMC_PAGE_URL;
+        case IDX_CURRENCIES_SL_TYPE:                return CELL_CURRENCIES_SL_TYPE;
+        case IDX_CURRENCIES_SL_MINEABLE:            return CELL_CURRENCIES_SL_MINEABLE;
+        case IDX_CURRENCIES_SL_SITE_URLS:           return CELL_CURRENCIES_SL_SITE_URLS;
+        case IDX_CURRENCIES_SL_ANNONCEMENT_URLS:    return CELL_CURRENCIES_SL_ANNONCEMENT_URLS;
+        case IDX_CURRENCIES_SL_CHAT_URLS:           return CELL_CURRENCIES_SL_CHAT_URLS;
+        case IDX_CURRENCIES_SL_EXPLORER_URLS:       return CELL_CURRENCIES_SL_EXPLORER_URLS;
+        case IDX_CURRENCIES_SL_MSGBOARD_URLS:       return CELL_CURRENCIES_SL_MSGBOARD_URLS;
+        case IDX_CURRENCIES_SL_SRC_URLS:            return CELL_CURRENCIES_SL_SRC_URLS;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_CURRENCIES_MEM:
+        switch (cell_idx) {
+        case IDX_CURRENCIES_MEM_ID:                 return CELL_CURRENCIES_MEM_ID;
+        case IDX_CURRENCIES_MEM_MANUAL_UPD_DATE:    return CELL_CURRENCIES_MEM_MANUAL_UPD_DATE;
+        case IDX_CURRENCIES_MEM_APP_AREAS_KEY:      return CELL_CURRENCIES_MEM_APP_AREAS_KEY;
+        case IDX_CURRENCIES_MEM_REV_IDEA:           return CELL_CURRENCIES_MEM_REV_IDEA;
+        case IDX_CURRENCIES_MEM_BASE_PLATFORM_KEY:  return CELL_CURRENCIES_MEM_BASE_PLATFORM_KEY;
+        case IDX_CURRENCIES_MEM_CON_ALG_KEY:        return CELL_CURRENCIES_MEM_CON_ALG_KEY;
+        case IDX_CURRENCIES_MEM_WP_URL:             return CELL_CURRENCIES_MEM_WP_URL;
+        case IDX_CURRENCIES_MEM_RM_URL:             return CELL_CURRENCIES_MEM_RM_URL;
+        case IDX_CURRENCIES_MEM_F_INTER_COMP:       return CELL_CURRENCIES_MEM_F_INTER_COMP;
+        case IDX_CURRENCIES_MEM_F_WP_IN_CV:         return CELL_CURRENCIES_MEM_F_WP_IN_CV;
+        case IDX_CURRENCIES_MEM_CONTACTS:           return CELL_CURRENCIES_MEM_CONTACTS;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_CONSENSUSALG:
+        switch (cell_idx) {
+        case IDX_CONSENSUSALG_NAME:                 return CELL_CONSENSUSALG_NAME;
+        case IDX_CONSENSUSALG_INFO:                 return CELL_CONSENSUSALG_INFO;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_AREAS:
+        switch (cell_idx) {
+        case IDX_AREAS_NAME:                        return CELL_AREAS_NAME;
+        case IDX_AREAS_COMMENT:                     return CELL_AREAS_COMMENT;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_DEVINFO:
+        switch (cell_idx) {
+        case IDX_DEVINFO_CURRENCY_ID:               return CELL_DEVINFO_CURRENCY_ID;
+        case IDX_DEVINFO_PROJECT_NAME:              return CELL_DEVINFO_PROJECT_NAME;
+        case IDX_DEVINFO_START_DATETIME_STR:        return CELL_DEVINFO_START_DATETIME_STR;
+        case IDX_DEVINFO_LANGUAGE_USE:              return CELL_DEVINFO_LANGUAGE_USE;
+        case IDX_DEVINFO_LICENSE:                   return CELL_DEVINFO_LICENSE;
+        case IDX_DEVINFO_F_IS_FORK:                 return CELL_DEVINFO_F_IS_FORK;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_GITHUBPOOL:
+        switch (cell_idx) {
+        case IDX_GITHUBPOOL_CURRENCY_ID:            return CELL_GITHUBPOOL_CURRENCY_ID;
+        case IDX_GITHUBPOOL_PROJECT_NAME:           return CELL_GITHUBPOOL_PROJECT_NAME;
+        case IDX_GITHUBPOOL_COMMITS_NUM:            return CELL_GITHUBPOOL_COMMITS_NUM;
+        case IDX_GITHUBPOOL_BRANCHES_NUM:           return CELL_GITHUBPOOL_BRANCHES_NUM;
+        case IDX_GITHUBPOOL_RELEASES_NUM:           return CELL_GITHUBPOOL_RELEASES_NUM;
+        case IDX_GITHUBPOOL_CONTRIBUTORS_NUM:       return CELL_GITHUBPOOL_CONTRIBUTORS_NUM;
+        case IDX_GITHUBPOOL_ISSUSES_OPEN_NUM:       return CELL_GITHUBPOOL_ISSUSES_OPEN_NUM;
+        case IDX_GITHUBPOOL_ISSUSES_CLOSED_NUM:     return CELL_GITHUBPOOL_ISSUSES_CLOSED_NUM;
+        case IDX_GITHUBPOOL_PULLREQ_OPEN_NUM:       return CELL_GITHUBPOOL_PULLREQ_OPEN_NUM;
+        case IDX_GITHUBPOOL_PULLREQ_CLOSED_NUM:     return CELL_GITHUBPOOL_PULLREQ_CLOSED_NUM;
+        case IDX_GITHUBPOOL_STARS_NUM:              return CELL_GITHUBPOOL_STARS_NUM;
+        case IDX_GITHUBPOOL_FORKS_NUM:              return CELL_GITHUBPOOL_FORKS_NUM;
+        default:
+            break;
+        }
+        break;
+    case IDX_TABLE_MARKETSPOOL:
+        switch (cell_idx) {
+        case IDX_MARKETSPOOL_CURRENCY_ID:           return CELL_MARKETSPOOL_CURRENCY_ID;
+        case IDX_MARKETSPOOL_MARKET:                return CELL_MARKETSPOOL_MARKET;
+        case IDX_MARKETSPOOL_EX_SYMBOL:             return CELL_MARKETSPOOL_EX_SYMBOL;
+        case IDX_MARKETSPOOL_VOL24_USD:             return CELL_MARKETSPOOL_VOL24_USD;
+        case IDX_MARKETSPOOL_VOL24_BTC:             return CELL_MARKETSPOOL_VOL24_BTC;
+        case IDX_MARKETSPOOL_VOL_PERC:              return CELL_MARKETSPOOL_VOL_PERC;
+        case IDX_MARKETSPOOL_PRICE_USD:             return CELL_MARKETSPOOL_PRICE_USD;
+        case IDX_MARKETSPOOL_PRICE_BTC:             return CELL_MARKETSPOOL_PRICE_BTC;
+        case IDX_MARKETSPOOL_URL:                   return CELL_MARKETSPOOL_URL;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+    return "";
 }
 
 /* Метод для открытия базы данных
@@ -961,8 +1100,7 @@ bool DataBase::createCurrenciesMemTable(bool flagIfNotExist)
 {
     QSqlQuery query;
     QString sql = QString("CREATE TABLE %1" T_CURRENCIES_MEM " ("
-                                                             "'id' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                             "'" CELL_CURRENCIES_MEM_SYMBOL "'" " VARCHAR(10) NOT NULL, "
+                                                             "'" CELL_CURRENCIES_MEM_ID "'" " TEXT UNIQUE PRIMARY KEY,"
                                                              "'" CELL_CURRENCIES_MEM_MANUAL_UPD_DATE "'" " UNSIGNED BIG INT NOT NULL, "
                                                              "'" CELL_CURRENCIES_MEM_APP_AREAS_KEY "'" " TEXT, "
                                                              "'" CELL_CURRENCIES_MEM_REV_IDEA "'" " TEXT, "
@@ -1029,7 +1167,7 @@ bool DataBase::createDevInfoTable(bool flagIfNotExist)
     QSqlQuery query;
     QString sql = QString("CREATE TABLE %1" T_DEVINFO " ("
                                                       "'id' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                      "'" CELL_DEVINFO_CURRENCY_SYMBOL "'" " VARCHAR(10) NOT NULL, "
+                                                      "'" CELL_DEVINFO_CURRENCY_ID "'" " TEXT NOT NULL, "
                                                       "'" CELL_DEVINFO_PROJECT_NAME "'" " VARCHAR(50) NOT NULL, "
                                                       "'" CELL_DEVINFO_START_DATETIME_STR "'" "VARCHAR(30) NOT NULL, "
                                                       "'" CELL_DEVINFO_LANGUAGE_USE "'" " VARCHAR(20) NOT NULL, "
@@ -1052,7 +1190,7 @@ bool DataBase::createGithubHistoryPoolTable(bool flagIfNotExist)
     QSqlQuery query;
     QString sql = QString("CREATE TABLE %1" T_GITHUBPOOL " ("
                                                          "'id' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                         "'" CELL_GITHUBPOOL_CURRENCY_SYMBOL "'" " VARCHAR(10) NOT NULL, "
+                                                         "'" CELL_GITHUBPOOL_CURRENCY_ID "'" " TEXT NOT NULL, "
                                                          "'" CELL_GITHUBPOOL_PROJECT_NAME "'" " VARCHAR(50) NOT NULL, "
                                                          "'" CELL_GITHUBPOOL_COMMITS_NUM "'" " INTEGER NOT NULL, "
                                                          "'" CELL_GITHUBPOOL_BRANCHES_NUM "'" " INTEGER NOT NULL, "
@@ -1082,7 +1220,7 @@ bool DataBase::createMarketsTable(bool flagIfNotExist)
     QSqlQuery query;
     QString sql = QString("CREATE TABLE %1" T_MARKETSPOOL " ("
                                                           "'id' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                                          "'" CELL_MARKETSPOOL_CURRENCY_SYMBOL "'" " INTEGER NOT NULL, "
+                                                          "'" CELL_MARKETSPOOL_CURRENCY_ID "'" " TEXT NOT NULL, "
                                                           "'" CELL_MARKETSPOOL_MARKET "'" " VARCHAR(20) NOT NULL, "
                                                           "'" CELL_MARKETSPOOL_EX_SYMBOL "'" " VARCHAR(20) NOT NULL, "
                                                           "'" CELL_MARKETSPOOL_VOL24_USD "'" " REAL NOT NULL, "
