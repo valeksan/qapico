@@ -29,13 +29,13 @@ void DataBase::connectToDataBase()
 
 /* Методы для вставки записей в таблицы
  * */
-bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, bool orReplace)
+bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, int table_idx, bool orReplace)
 {
     if(roles.empty()) {
         return false;
     }
 
-    if(!createCurrenciesTable(true)) {        
+    if(!createCurrenciesTable(table_idx, true)) {
         return false;
     }
 
@@ -131,7 +131,7 @@ bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, bool 
     if(sql_cells.empty()) {
         return false;
     }
-    sql_cmd = QString("INSERT%1 INTO " T_CURRENCIES " ( ").arg((orReplace?" OR REPLACE":""));
+    sql_cmd = QString("INSERT%1 INTO %2 ( ").arg((orReplace?" OR REPLACE":"")).arg(getTableNameByIdx(table_idx));
     sql_cmd += sql_cells.join(", ");
     sql_cmd += ") VALUES ( ";
     sql_cmd += sql_values.join(", ");
@@ -222,7 +222,7 @@ bool DataBase::insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, bool 
     }
 
     if(!query.exec()) {
-        qDebug() << "error insert into " << T_CURRENCIES;
+        qDebug() << "error insert into " << getTableNameByIdx(table_idx);
         qDebug() << query.lastError().text();
         qDebug() << query.executedQuery();
         qDebug() << "Name: " << roles.value(IDX_CURRENCIES_NAME).toString();
@@ -800,6 +800,64 @@ bool DataBase::insertIntoMarketsTable(const QHash<int, QVariant> &roles)
     return false;
 }
 
+bool DataBase::clearTableByIdx(int table_idx, QString condition)
+{
+    QSqlQuery query;
+    QString sql_cmd = QString("DELETE FROM %1%2;")
+            .arg(getTableNameByIdx(table_idx))
+            .arg((condition.length() > 0) ? QString(" WHERE %1").arg(condition) : "");
+
+    query.prepare(sql_cmd);
+    if(!query.exec()) {
+        qDebug() << "error clear " << getTableNameByIdx(table_idx);
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
+
+bool DataBase::copyTable(int source_table_idx, int destination_table_idx, bool orReplace, QString condition)
+{
+    QSqlQuery query;
+    QString sql_cmd = QString("INSERT%1 INTO %2 SELECT * FROM %3%4;")
+            .arg((orReplace?" OR REPLACE":""))
+            .arg(getTableNameByIdx(destination_table_idx))
+            .arg(getTableNameByIdx(source_table_idx))
+            .arg((condition.length() > 0) ? QString(" WHERE %1").arg(condition) : "");
+
+    query.prepare(sql_cmd);
+    if(!query.exec()) {
+        qDebug() << "error copy into " << getTableNameByIdx(destination_table_idx) << " from " << getTableNameByIdx(source_table_idx);
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
+
+bool DataBase::copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace)
+{
+    QSqlQuery query;
+    QString sql_cmd = QString("INSERT%1 INTO %2 (SELECT FROM %3 WHERE ids NOT IN(SELECT ids FROM %4));")
+            .arg((orReplace?" OR REPLACE":""))
+            .arg(getTableNameByIdx(destination_finded_item_table_idx))
+            .arg(getTableNameByIdx(source_select_items_table_idx))
+            .arg(getTableNameByIdx(source_comparable_table_idx));
+
+    query.prepare(sql_cmd);
+    if(!query.exec()) {
+        qDebug() << "error copy into " << getTableNameByIdx(destination_finded_item_table_idx) << " from " << getTableNameByIdx(source_select_items_table_idx);
+        qDebug() << query.lastError().text();
+        return false;
+    } else {
+        return true;
+    }
+    return false;
+}
+
 QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int> columns_ids)
 {
     QList<QHash<int, QVariant> > result;
@@ -1008,6 +1066,25 @@ QString DataBase::getCellNameByIdx(int table_idx, int cell_idx)
     return "";
 }
 
+QString DataBase::getTableNameByIdx(int table_idx)
+{
+    switch (table_idx) {
+    case IDX_TABLE_CURRENCIES:                      return T_CURRENCIES;
+    case IDX_TABLE_CURRENCIES_PREV:                 return T_CURRENCIES_PREV;
+    case IDX_TABLE_CURRENCIES_DEAD:                 return T_CURRENCIES_DEAD;
+    case IDX_TABLE_CURRENCIES_BORN:                 return T_CURRENCIES_BORN;
+    case IDX_TABLE_CURRENCIES_MEM:                  return T_CURRENCIES_MEM;
+    case IDX_TABLE_CONSENSUSALG:                    return T_CONSENSUSALG;
+    case IDX_TABLE_AREAS:                           return T_AREAS;
+    case IDX_TABLE_DEVINFO:                         return T_DEVINFO;
+    case IDX_TABLE_GITHUBPOOL:                      return T_GITHUBPOOL;
+    case IDX_TABLE_MARKETSPOOL:                     return T_MARKETSPOOL;
+    default:
+        break;
+    }
+    return "";
+}
+
 /* Метод для открытия базы данных
  * */
 bool DataBase::openDataBase()
@@ -1056,10 +1133,10 @@ void DataBase::closeDataBase()
 
 /* Методы для создания таблиц в базе данных
  * */
-bool DataBase::createCurrenciesTable(bool flagIfNotExist)
+bool DataBase::createCurrenciesTable(int table_idx, bool flagIfNotExist)
 {
     QSqlQuery query;
-    QString sql = QString("CREATE TABLE %1" T_CURRENCIES " ("
+    QString sql = QString("CREATE TABLE %1%2 ("
                                                          "'" CELL_CURRENCIES_ID "'" " TEXT UNIQUE PRIMARY KEY, "
                                                          "'" CELL_CURRENCIES_NAME "'" " VARCHAR(255) NOT NULL, "
                                                          "'" CELL_CURRENCIES_SYMBOL "'" " VARCHAR(10) NOT NULL, "
@@ -1084,9 +1161,12 @@ bool DataBase::createCurrenciesTable(bool flagIfNotExist)
                                                          "'" CELL_CURRENCIES_SL_EXPLORER_URLS "'" " TEXT, "
                                                          "'" CELL_CURRENCIES_SL_MSGBOARD_URLS "'" " TEXT, "
                                                          "'" CELL_CURRENCIES_SL_SRC_URLS "'" " TEXT"
-                                                     " );").arg((flagIfNotExist?"IF NOT EXISTS ":""));
+                                                     " );")
+            .arg((flagIfNotExist?"IF NOT EXISTS ":""))
+            .arg(getTableNameByIdx(table_idx));
+
     if(!query.exec(sql)) {
-        qDebug() << "DataBase: error of create " << T_CURRENCIES;
+        qDebug() << "DataBase: error of create " << getTableNameByIdx(table_idx);
         qDebug() << query.lastError().text();
         qDebug() << query.executedQuery();
         return false;
@@ -1243,7 +1323,10 @@ bool DataBase::createMarketsTable(bool flagIfNotExist)
 
 bool DataBase::createAllTables()
 {
-    if((!this->createCurrenciesTable())
+    if((!this->createCurrenciesTable(IDX_TABLE_CURRENCIES))
+            || (!this->createCurrenciesTable(IDX_TABLE_CURRENCIES_PREV))
+            || (!this->createCurrenciesTable(IDX_TABLE_CURRENCIES_DEAD))
+            || (!this->createCurrenciesTable(IDX_TABLE_CURRENCIES_BORN))
             || (!this->createCurrenciesMemTable())
             || (!this->createConsensusAlgTable())
             || (!this->createAppAreasTable())

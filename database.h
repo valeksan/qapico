@@ -33,7 +33,7 @@ public:
      * */
     void connectToDataBase();
 
-    bool insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, bool orReplace = true);
+    bool insertIntoCurrenciesTable(const QHash<int,QVariant> &roles, int table_idx = IDX_TABLE_CURRENCIES, bool orReplace = true);
     bool insertIntoCurrenciesMemTable(const QHash<int,QVariant> &roles);
     bool insertIntoConsensusAlgTable(const QHash<int,QVariant> &roles);
     bool insertIntoAreasTable(const QHash<int,QVariant> &roles);
@@ -41,11 +41,17 @@ public:
     bool insertIntoGithubHistoryPoolTable(const QHash<int,QVariant> &roles);
     bool insertIntoMarketsTable(const QHash<int,QVariant> &roles);
 
+    bool clearTableByIdx(int table_idx, QString condition = "");
+
+    bool copyTable(int source_table_idx, int destination_table_idx, bool orReplace = true, QString condition = "");
+    bool copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace = true);
+
     QList<QHash<int,QVariant> > selectFromCurrenciesTable(const QList<int> columns_ids);
 
     QString getDatabaseFilename();
 
     static QString getCellNameByIdx(int table_idx, int cell_idx);
+    static QString getTableNameByIdx(int table_idx);
 
 private:
     // Сам объект базы данных, с которым будет производиться работа
@@ -59,7 +65,7 @@ private:
     bool restoreDataBase();
     void closeDataBase();
 
-    bool createCurrenciesTable(bool flagIfNotExist = false);
+    bool createCurrenciesTable(int table_idx = IDX_TABLE_CURRENCIES, bool flagIfNotExist = false);
     bool createCurrenciesMemTable(bool flagIfNotExist = false);
     bool createConsensusAlgTable(bool flagIfNotExist = false);
     bool createAppAreasTable(bool flagIfNotExist = false);

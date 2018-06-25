@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //    qDebug() << convertGithubUrlToApiReq(QUrl("https://github.com/input-output-hk/cardano-sl/"));
 
-    registerTasks();
+    registerTasks();    
 }
 
 MainWindow::~MainWindow()
@@ -71,6 +71,12 @@ void MainWindow::registerTasks()
                 ParserResult resultParseCMC = parser.parse();
                 qDebug() << "currencies_size:" << resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
                 if(resultParseCMC.error == Parser::ERR_OK) {
+                    // подготовка таблиц - очистка старых записей в PREV-версии
+                    db->clearTableByIdx(IDX_TABLE_CURRENCIES_PREV);
+                    // подготовка таблиц - копирование текущих старых записей в PREV
+                    db->copyTable(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV);
+                    // подготовка таблиц - очистка старых записей в актуальной таблице
+                    db->clearTableByIdx(IDX_TABLE_CURRENCIES);
                     // сохранение в БД ...
                     qDebug() << "save to DB ...";
                     int size = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
@@ -95,13 +101,17 @@ void MainWindow::registerTasks()
                         hValues.insert(IDX_CURRENCIES_PERCENT_CH_7D, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_PERCENT_CH_7D_ATTR));
                         hValues.insert(IDX_CURRENCIES_LAST_UPDATE_DATE, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES, Parser::KEY_CYR_DATE_LAST_UPDATED_ATTR));
                         hValues.insert(IDX_CURRENCIES_CMC_PAGE_URL, Parser::getResultValue(resultParseCMC, listId.at(i), Parser::TYPE_PARSE_MAIN_PAGE, Parser::KEY_MAIN_TABLE_CURRENCIES_INFO_URLS));
-                        //
-                        if(!db->insertIntoCurrenciesTable(hValues)) {
+                        // вставка записей в актуальную версию таблицы
+                        if(!db->insertIntoCurrenciesTable(hValues, IDX_TABLE_CURRENCIES)) {
                             qDebug() << "fail id: " << listId.at(i);
                         }
                         //qDebug() << (i+1)*100.0/size << "%";
                         ui->progressBar->setValue((i+1)*100/size);
                     }
+                    // выявление недействительных (DEAD) записей - умерших проектов, и запись их в соотв. таблицу
+                    db->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_DEAD);
+                    // выявление новых (BORN) записей - новых проектов, и запись их в соотв. таблицу
+                    db->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES_BORN);
                     //db->insertIntoCurrenciesTable()
                     ui->label->setText("Обновление списка проектов завершено");
                 } else {
@@ -177,7 +187,7 @@ void MainWindow::displayCurrenciesFromBase()
         ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 1), resultList.value(i).value(IDX_CURRENCIES_SYMBOL), Qt::DisplayRole);
         //ui->tableWidgetCurrencies->model()->setData()
     }
-    ui->tableWidgetCurrencies->sortByColumn(0);
+    //ui->tableWidgetCurrencies->sortByColumn(0);
     //
     ui->tableWidgetCurrencies->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }

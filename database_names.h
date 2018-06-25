@@ -8,7 +8,11 @@
 //////////////////////////////////////////////////////////////////////////
 /// Таблица: Проекты
 //////////////////////////////////////////////////////////////////////////
-#define T_CURRENCIES                        "TableCurrencies"
+#define T_CURRENCIES                        "TableCurrenciesCurrent"
+#define T_CURRENCIES_PREV                   "TableCurrenciesPrev"
+#define T_CURRENCIES_DEAD                   "TableCurrenciesDead"
+#define T_CURRENCIES_BORN                   "TableCurrenciesBorn"
+
 // fast updateble cells
 #define CELL_CURRENCIES_ID                      "sid"
 #define CELL_CURRENCIES_NAME                    "Name"
@@ -215,6 +219,9 @@ enum MarketPoolUpdCellIdx {
 //////////////////////////////////////////////////////////////////////////
 enum AllTablesIdx {
     IDX_TABLE_CURRENCIES = 0,
+    IDX_TABLE_CURRENCIES_PREV,
+    IDX_TABLE_CURRENCIES_DEAD,
+    IDX_TABLE_CURRENCIES_BORN,
     IDX_TABLE_CURRENCIES_MEM,
     IDX_TABLE_CONSENSUSALG,
     IDX_TABLE_AREAS,
