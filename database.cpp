@@ -858,7 +858,7 @@ bool DataBase::copyCurrenciesBetweenTablesByNotExist(int source_select_items_tab
     return false;
 }
 
-QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int> columns_ids)
+QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int> columns_ids, int table_idx)
 {
     QList<QHash<int, QVariant> > result;
     QStringList sql_cells;
@@ -921,7 +921,7 @@ QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int
         }
     }
 
-    QString sql_cmd = QString("SELECT %1 FROM %2;").arg(sql_cells.join(", ")).arg(T_CURRENCIES);
+    QString sql_cmd = QString("SELECT %1 FROM %2;").arg(sql_cells.join(", ")).arg(getTableNameByIdx(table_idx));
     QSqlQuery qry;
     qry.prepare(sql_cmd);
 
@@ -935,7 +935,7 @@ QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int
     while(qry.next()) {
         QHash<int,QVariant> item;
         for(int i=0; i<columns_ids.size(); i++) {
-            item.insert(columns_ids.at(i), qry.value(DataBase::getCellNameByIdx(IDX_TABLE_CURRENCIES, columns_ids.at(i))));
+            item.insert(columns_ids.at(i), qry.value(DataBase::getCellNameByIdx(table_idx, columns_ids.at(i))));
         }
 //        qDebug() << item.value(1);
         result.append(item);
@@ -953,6 +953,9 @@ QString DataBase::getCellNameByIdx(int table_idx, int cell_idx)
 {
     switch (table_idx) {
     case IDX_TABLE_CURRENCIES:
+    case IDX_TABLE_CURRENCIES_PREV:
+    case IDX_TABLE_CURRENCIES_DEAD:
+    case IDX_TABLE_CURRENCIES_BORN:
         switch (cell_idx) {
         case IDX_CURRENCIES_ID:                     return CELL_CURRENCIES_ID;
         case IDX_CURRENCIES_NAME:                   return CELL_CURRENCIES_NAME;

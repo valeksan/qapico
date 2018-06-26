@@ -152,7 +152,7 @@ void MainWindow::registerTasks()
     }
 }
 
-void MainWindow::displayCurrenciesFromBase()
+void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
 {
     QList<int> list_cell_idx;
     list_cell_idx.append(IDX_CURRENCIES_ID);
@@ -171,24 +171,20 @@ void MainWindow::displayCurrenciesFromBase()
     list_cell_idx.append(IDX_CURRENCIES_PERCENT_CH_7D);
     list_cell_idx.append(IDX_CURRENCIES_LAST_UPDATE_DATE);
     list_cell_idx.append(IDX_CURRENCIES_CMC_PAGE_URL);
-    QList<QHash<int,QVariant> > resultList = db->selectFromCurrenciesTable(list_cell_idx);
+    QList<QHash<int,QVariant> > resultList = db->selectFromCurrenciesTable(list_cell_idx, table_currencies_idx);
 
     if(resultList.empty()) {
         return;
     }
 
     ui->tableWidgetCurrencies->clearContents();
-//    qDebug() << "resultList[size]:" << resultList.size();
     for(int i=0; i<resultList.size(); i++) ui->tableWidgetCurrencies->insertRow(i);
     for(int i=0; i<resultList.size(); i++) {
         int row_index = resultList.value(i).value(IDX_CURRENCIES_RANK).toInt()-1;
-//        qDebug() << "row:" << row_index;
         ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 0), resultList.value(i).value(IDX_CURRENCIES_NAME), Qt::DisplayRole);
         ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 1), resultList.value(i).value(IDX_CURRENCIES_SYMBOL), Qt::DisplayRole);
-        //ui->tableWidgetCurrencies->model()->setData()
+        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 2), resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD), Qt::DisplayRole);
     }
-    //ui->tableWidgetCurrencies->sortByColumn(0);
-    //
     ui->tableWidgetCurrencies->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
@@ -270,6 +266,6 @@ void MainWindow::slotFinishedTask(long id, int type, QVariantList argsList, QVar
     if(type == TASK_UPDATE_CURRENCIES_BASE && result.value<TaskResult>().error == ERR_TASK_OK) {
         m_isBaseCurrenciesInit = true;
         // метод отображения списка из базы тут будет
-        displayCurrenciesFromBase();
+        displayCurrenciesFromBase(IDX_TABLE_CURRENCIES);
     }
 }

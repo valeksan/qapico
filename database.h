@@ -46,7 +46,7 @@ public:
     bool copyTable(int source_table_idx, int destination_table_idx, bool orReplace = true, QString condition = "");
     bool copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace = true);
 
-    QList<QHash<int,QVariant> > selectFromCurrenciesTable(const QList<int> columns_ids);
+    QList<QHash<int,QVariant> > selectFromCurrenciesTable(const QList<int> columns_ids, int table_idx = IDX_TABLE_CURRENCIES);
 
     QString getDatabaseFilename();
 

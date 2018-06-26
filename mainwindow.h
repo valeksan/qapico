@@ -30,7 +30,7 @@ public:
 
     void registerTasks();
 
-    void displayCurrenciesFromBase();
+    void displayCurrenciesFromBase(int table_currencies_idx = IDX_TABLE_CURRENCIES);
 
 private slots:
     void on_pushButtonUpdate_clicked();
