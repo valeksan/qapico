@@ -43,6 +43,13 @@ template<typename T> using get_signature = typename get_signature_impl<T>::type;
 template<typename F> using make_function_type = std::function<get_signature<F> >;
 template<typename F> make_function_type<F> make_function(F &&f) { return make_function_type<F>(std::forward<F>(f)); }
 
+template<typename... Args> struct SELECT {
+    template<typename C, typename R>
+    static constexpr auto OVERLOAD_OF( R (C::*pmf)(Args...) ) -> decltype(pmf) {
+        return pmf;
+    }
+};
+
 class CoreException: public QException
 {
 public:

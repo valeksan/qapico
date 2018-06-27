@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     core(new Core),
     m_isBaseCurrenciesInit(false),
     m_isInfoCurrenciesInit(false),
-    m_isDevCurrenciesInit(false)
+    m_isDevCurrenciesInit(false),
+    m_tableview_variant(VIEW_TABLE_ACTUAL)
 {
     ui->setupUi(this);
 
@@ -39,8 +40,41 @@ MainWindow::MainWindow(QWidget *parent) :
 //    qDebug() << url.path().section("/",1,1); \\ OK!
 
 //    qDebug() << convertGithubUrlToApiReq(QUrl("https://github.com/input-output-hk/cardano-sl/"));
+    updateColorCheckTableButton();
 
-    registerTasks();    
+    registerTasks();
+
+    displayCurrenciesUpdate();
+
+    connect(ui->spinBoxPrecisionPrices, SELECT<int>::OVERLOAD_OF(&QSpinBox::valueChanged), [&](int i) {
+        Q_UNUSED(i)
+        displayCurrenciesUpdate();
+    });
+    connect(ui->spinBoxPrecisionIncrease, SELECT<int>::OVERLOAD_OF(&QSpinBox::valueChanged), [&](int i) {
+        Q_UNUSED(i)
+        displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonUSD, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonBTC, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonPR, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonDP, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonSupplyAv, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonSupplyTotal, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
+    connect(ui->radioButtonSupplyMax, &QRadioButton::toggled, [&](bool checked) {
+        if(checked) displayCurrenciesUpdate();
+    });
 }
 
 MainWindow::~MainWindow()
@@ -155,6 +189,8 @@ void MainWindow::registerTasks()
 void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
 {
     QList<int> list_cell_idx;
+    double price_usd;
+    double price_btc;
     list_cell_idx.append(IDX_CURRENCIES_ID);
     list_cell_idx.append(IDX_CURRENCIES_NAME);
     list_cell_idx.append(IDX_CURRENCIES_SYMBOL);
@@ -175,37 +211,126 @@ void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
 
     if(resultList.empty()) {
         return;
-    }
+    }    
 
-    ui->tableWidgetCurrencies->clearContents();
+    while (ui->tableWidgetCurrencies->rowCount() != 0) ui->tableWidgetCurrencies->removeRow(0);
+    //for(int i=0; i<resultList.size(); i++) ui->tableWidgetCurrencies->insertRow(i);
     for(int i=0; i<resultList.size(); i++) ui->tableWidgetCurrencies->insertRow(i);
     for(int i=0; i<resultList.size(); i++) {
         int row_index = resultList.value(i).value(IDX_CURRENCIES_RANK).toInt()-1;
         ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 0), resultList.value(i).value(IDX_CURRENCIES_NAME), Qt::DisplayRole);
         ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 1), resultList.value(i).value(IDX_CURRENCIES_SYMBOL), Qt::DisplayRole);
-        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 2), resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD), Qt::DisplayRole);
+        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 2), QString("$")+resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD).toString(), Qt::DisplayRole);
+        if(ui->radioButtonUSD->isChecked()) {
+            price_usd = resultList.value(i).value(IDX_CURRENCIES_PRICE_USD).toDouble();
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 3), QString("$")+QString::number(price_usd,'f',ui->spinBoxPrecisionPrices->value()), Qt::DisplayRole);
+        } else {
+            price_btc = resultList.value(i).value(IDX_CURRENCIES_PRICE_BTC).toDouble();
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 3), QString::number(price_btc,'f',ui->spinBoxPrecisionPrices->value()), Qt::DisplayRole);
+        }
+        if(ui->radioButtonSupplyAv->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 4), resultList.value(i).value(IDX_CURRENCIES_AVAIBLE_SUPPLY), Qt::DisplayRole);
+        } else if(ui->radioButtonSupplyTotal->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 4), resultList.value(i).value(IDX_CURRENCIES_TOTAL_SUPPLY), Qt::DisplayRole);
+        } else {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 4), resultList.value(i).value(IDX_CURRENCIES_MAX_SUPPLY), Qt::DisplayRole);
+        }
+        ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 5), QString("$")+resultList.value(i).value(IDX_CURRENCIES_VOL24H_USD).toString(), Qt::DisplayRole);
+        if(ui->radioButtonPR->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 6), QString::number(resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_1H).toDouble(),'f',ui->spinBoxPrecisionIncrease->value())+QString("%"), Qt::DisplayRole);
+        } else if(ui->radioButtonUSD->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 6), getStrCalcDeltaIncreaseValue(price_usd, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_1H).toDouble(), ui->spinBoxPrecisionIncrease->value(),"$"), Qt::DisplayRole);
+        } else {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 6), getStrCalcDeltaIncreaseValue(price_btc, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_1H).toDouble(), ui->spinBoxPrecisionIncrease->value()), Qt::DisplayRole);
+        }
+        if(ui->radioButtonPR->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 7), QString::number(resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_24H).toDouble(),'f',ui->spinBoxPrecisionIncrease->value())+QString("%"), Qt::DisplayRole);
+        } else if(ui->radioButtonUSD->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 7), getStrCalcDeltaIncreaseValue(price_usd, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_24H).toDouble(), ui->spinBoxPrecisionIncrease->value(),"$"), Qt::DisplayRole);
+        } else {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 7), getStrCalcDeltaIncreaseValue(price_btc, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_24H).toDouble(), ui->spinBoxPrecisionIncrease->value()), Qt::DisplayRole);
+        }
+        if(ui->radioButtonPR->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 8), QString::number(resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_7D).toDouble(),'f',ui->spinBoxPrecisionIncrease->value())+QString("%"), Qt::DisplayRole);
+        } else if(ui->radioButtonUSD->isChecked()) {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 8), getStrCalcDeltaIncreaseValue(price_usd, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_7D).toDouble(), ui->spinBoxPrecisionIncrease->value(),"$"), Qt::DisplayRole);
+        } else {
+            ui->tableWidgetCurrencies->model()->setData(ui->tableWidgetCurrencies->model()->index(row_index, 8), getStrCalcDeltaIncreaseValue(price_btc, resultList.value(i).value(IDX_CURRENCIES_PERCENT_CH_7D).toDouble(), ui->spinBoxPrecisionIncrease->value()), Qt::DisplayRole);
+        }
     }
     ui->tableWidgetCurrencies->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+}
+
+void MainWindow::displayCurrenciesUpdate(){
+    switch (m_tableview_variant) {
+    case VIEW_TABLE_ACTUAL:
+        this->displayCurrenciesFromBase();
+        break;
+    case VIEW_TABLE_PREV_VALUES:
+        this->displayCurrenciesFromBase(IDX_TABLE_CURRENCIES_PREV);
+        break;
+    case VIEW_TABLE_DEAD_PROJECTS:
+        this->displayCurrenciesFromBase(IDX_TABLE_CURRENCIES_DEAD);
+        break;
+    case VIEW_TABLE_NEW_PROJECTS:
+        this->displayCurrenciesFromBase(IDX_TABLE_CURRENCIES_BORN);
+        break;
+    default:
+        this->displayCurrenciesFromBase();
+        break;
+    }
+}
+
+void MainWindow::updateColorCheckTableButton()
+{
+    switch (m_tableview_variant) {
+    case VIEW_TABLE_ACTUAL:
+        ui->pushButtonActual->setStyleSheet("background-color: rgb(226, 252, 175);");
+        ui->pushButtonPrevScan->setStyleSheet("");
+        ui->pushButtonDeadProjects->setStyleSheet("");
+        ui->pushButtonNewProjects->setStyleSheet("");
+        break;
+    case VIEW_TABLE_PREV_VALUES:
+        ui->pushButtonActual->setStyleSheet("");
+        ui->pushButtonPrevScan->setStyleSheet("background-color: rgb(226, 252, 175);");
+        ui->pushButtonDeadProjects->setStyleSheet("");
+        ui->pushButtonNewProjects->setStyleSheet("");
+        break;
+    case VIEW_TABLE_DEAD_PROJECTS:
+        ui->pushButtonActual->setStyleSheet("");
+        ui->pushButtonPrevScan->setStyleSheet("");
+        ui->pushButtonDeadProjects->setStyleSheet("background-color: rgb(226, 252, 175);");
+        ui->pushButtonNewProjects->setStyleSheet("");
+        break;
+    case VIEW_TABLE_NEW_PROJECTS:
+        ui->pushButtonActual->setStyleSheet("");
+        ui->pushButtonPrevScan->setStyleSheet("");
+        ui->pushButtonDeadProjects->setStyleSheet("");
+        ui->pushButtonNewProjects->setStyleSheet("background-color: rgb(226, 252, 175);");
+        break;
+    default:
+        break;
+    }
 }
 
 void MainWindow::on_pushButtonUpdate_clicked()
 {
     core->addTask(TASK_UPDATE_CURRENCIES_BASE, QVariantList());
 
-//    ParserResult resultParseCMC;
-//    //ParserResult result_2;
-//    //ParserResult result_3;
+    //    ParserResult resultParseCMC;
+    //    //ParserResult result_2;
+    //    //ParserResult result_3;
 
-//    // TEST PARSE MAIN PAGE!
-//    // https://api.coinmarketcap.com/v1/ticker/?limit=0
-//    DownloadError err;
-//    QUrl cmcpApiUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0");
-//    QByteArray page = Downloader::getHtmlPage(cmcpApiUrl, 15000, err);
-//    if(err.error == DownloadError::ERR_OK) {
-//        qDebug() << "Parse: MAIN PAGE";
-//        Parser parser(page, Parser::TYPE_PARSE_MAIN_PAGE);
-//        ui->textBrowser->setHtml(page);
-//        //qDebug() << "page:" << page;
+    //    // TEST PARSE MAIN PAGE!
+    //    // https://api.coinmarketcap.com/v1/ticker/?limit=0
+    //    DownloadError err;
+    //    QUrl cmcpApiUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0");
+    //    QByteArray page = Downloader::getHtmlPage(cmcpApiUrl, 15000, err);
+    //    if(err.error == DownloadError::ERR_OK) {
+    //        qDebug() << "Parse: MAIN PAGE";
+    //        Parser parser(page, Parser::TYPE_PARSE_MAIN_PAGE);
+    //        ui->textBrowser->setHtml(page);
+    //        //qDebug() << "page:" << page;
 //        resultParseCMC = parser.parse();
 //        qDebug() << "result_is_null:" << resultParseCMC.empty();
 //        qDebug() << "currencies_size:" << resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
@@ -268,4 +393,39 @@ void MainWindow::slotFinishedTask(long id, int type, QVariantList argsList, QVar
         // метод отображения списка из базы тут будет
         displayCurrenciesFromBase(IDX_TABLE_CURRENCIES);
     }
+}
+
+QString MainWindow::getStrCalcDeltaIncreaseValue(double price, double percent, int precision, QString currency)
+{
+    double result = fabs(price-(price+price*percent/100.0));
+
+    return (percent > 0) ? (QString("+%1").arg(currency)+QString::number(result, 'f', precision)) : (QString("-%1").arg(currency)+QString::number(result, 'f', precision));
+}
+
+void MainWindow::on_pushButtonActual_clicked()
+{
+    m_tableview_variant = VIEW_TABLE_ACTUAL;
+    updateColorCheckTableButton();
+    displayCurrenciesUpdate();
+}
+
+void MainWindow::on_pushButtonPrevScan_clicked()
+{
+    m_tableview_variant = VIEW_TABLE_PREV_VALUES;
+    updateColorCheckTableButton();
+    displayCurrenciesUpdate();
+}
+
+void MainWindow::on_pushButtonNewProjects_clicked()
+{
+    m_tableview_variant = VIEW_TABLE_NEW_PROJECTS;
+    updateColorCheckTableButton();
+    displayCurrenciesUpdate();
+}
+
+void MainWindow::on_pushButtonDeadProjects_clicked()
+{
+    m_tableview_variant = VIEW_TABLE_DEAD_PROJECTS;
+    updateColorCheckTableButton();
+    displayCurrenciesUpdate();
 }
