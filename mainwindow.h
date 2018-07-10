@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QtSql>
 #include <QMessageBox>
-//#include <QStandardItemModel>
+#include <QTableWidgetItem>
 
 #include <QDebug>
 
@@ -20,6 +20,53 @@
 namespace Ui {
 class MainWindow;
 }
+
+class TableNumberItem : public QTableWidgetItem
+{
+public:
+    TableNumberItem(const QString txt = QString("0"))
+        :QTableWidgetItem(txt)
+    {
+    }
+
+    bool operator < (const QTableWidgetItem &other) const
+    {
+        QString str1 = text();
+        QString str2 = other.text();
+
+        if (str1[0] == '$' || str1[0] == '+') {
+            str1.remove(0, 1);
+            str2.remove(0, 1); // we assume both items have the same format
+        }
+
+        if (str1[str1.length() - 1] == '%') {
+            str1.chop(1);
+            str2.chop(1); // this works for "N%" and for "N %" formatted strings
+        }
+
+//        double f1 = str1.toDouble();
+//        double f2 = str2.toDouble();
+
+        return str1.toDouble() < str2.toDouble();
+    }
+};
+
+class TableSimpleItem : public QTableWidgetItem
+{
+public:
+    TableSimpleItem(const QString txt = QString(""))
+        :QTableWidgetItem(txt)
+    {
+    }
+
+    bool operator < (const QTableWidgetItem &other) const
+    {
+        QString str1 = text();
+        QString str2 = other.text();
+
+        return str1 < str2;
+    }
+};
 
 class MainWindow : public QMainWindow
 {
@@ -41,6 +88,7 @@ private slots:
     void slotFinishedTask(long id, int type, QVariantList argsList, QVariant result);
 
     QString getStrCalcDeltaIncreaseValue(double price, double percent, int precision, QString currency = "");
+    QString getStrCalcPercentIncreaseValue(double percent, int precision);
 
     void on_pushButtonActual_clicked();
 
@@ -51,9 +99,9 @@ private slots:
     void on_pushButtonDeadProjects_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    DataBase *db;
-    Core *core;
+    Ui::MainWindow *m_pUi;
+    DataBase *m_pDb;
+    Core *m_pCore;
 //    QStandardItemModel *model;
     Q_PROPERTY(int tableview_variant READ tableview_variant WRITE setTableview_variant NOTIFY tableview_variantChanged)
 

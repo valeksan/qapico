@@ -841,18 +841,26 @@ bool DataBase::copyTable(int source_table_idx, int destination_table_idx, bool o
 bool DataBase::copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace)
 {
     QSqlQuery query;
-    QString sql_cmd = QString("INSERT%1 INTO %2 (SELECT FROM %3 WHERE ids NOT IN(SELECT ids FROM %4));")
+    QString sql_cmd = QString("INSERT%1 INTO %2 SELECT * FROM %3 WHERE sid NOT IN (SELECT sid FROM %4);")
             .arg((orReplace?" OR REPLACE":""))
             .arg(getTableNameByIdx(destination_finded_item_table_idx))
             .arg(getTableNameByIdx(source_select_items_table_idx))
             .arg(getTableNameByIdx(source_comparable_table_idx));
 
+//    QString sql_cmd2 = QString("SELECT * FROM %1 WHERE sid NOT IN (SELECT sid FROM %2);")
+//            .arg(getTableNameByIdx(source_select_items_table_idx))
+//            .arg(getTableNameByIdx(source_comparable_table_idx));
+
     query.prepare(sql_cmd);
+    //qDebug() << sql_cmd;
     if(!query.exec()) {
         qDebug() << "error copy into " << getTableNameByIdx(destination_finded_item_table_idx) << " from " << getTableNameByIdx(source_select_items_table_idx);
         qDebug() << query.lastError().text();
         return false;
     } else {
+//        while(query.next()) {
+//            qDebug() << query.value(0);
+//        }
         return true;
     }
     return false;
@@ -922,6 +930,7 @@ QList<QHash<int, QVariant> > DataBase::selectFromCurrenciesTable(const QList<int
     }
 
     QString sql_cmd = QString("SELECT %1 FROM %2;").arg(sql_cells.join(", ")).arg(getTableNameByIdx(table_idx));
+//    qDebug() << sql_cmd;
     QSqlQuery qry;
     qry.prepare(sql_cmd);
 

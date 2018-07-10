@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1073</width>
-    <height>708</height>
+    <width>1053</width>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,408 +17,513 @@
    <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTableWidget" name="tableWidgetCurrencies">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>1041</width>
-      <height>381</height>
-     </rect>
-    </property>
-    <column>
-     <property name="text">
-      <string>Название</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Символ</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Капитализация</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Цена</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Эмиссия</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Объем (24ч)</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>% (1ч)</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>% (24ч)</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>% (7д)</string>
-     </property>
-    </column>
-   </widget>
-   <widget class="QPushButton" name="pushButtonUpdate">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>470</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton
-{
-	border: 2px outset grey;
-	border-radius: 10px;
-	background-color: gainsboro;
-	font-size: 14px;
-}
-
-QPushButton:pressed
-{
-	border: 1px inset grey;
-}
-
-
-</string>
-    </property>
-    <property name="text">
-     <string>Обновить список</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonUpdate_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>510</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton
-{
-	border: 2px outset grey;
-	border-radius: 10px;
-	background-color: gainsboro;
-	font-size: 14px;
-}
-
-QPushButton:pressed
-{
-	border: 1px inset grey;
-}
-
-
-</string>
-    </property>
-    <property name="text">
-     <string>Обновить доп. информацию</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonUpdate_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>550</y>
-      <width>401</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton
-{
-	border: 2px outset grey;
-	border-radius: 10px;
-	background-color: gainsboro;
-	font-size: 14px;
-}
-
-QPushButton:pressed
-{
-	border: 1px inset grey;
-}
-
-
-</string>
-    </property>
-    <property name="text">
-     <string>Обновить статистику</string>
-    </property>
-   </widget>
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>620</y>
-      <width>1041</width>
-      <height>21</height>
+      <x>10</x>
+      <y>550</y>
+      <width>1029</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="value">
      <number>0</number>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QWidget" name="widgetControlsBottom" native="true">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>570</y>
-      <width>921</width>
-      <height>17</height>
+      <y>390</y>
+      <width>1029</width>
+      <height>150</height>
      </rect>
     </property>
-    <property name="text">
-     <string/>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>150</height>
+     </size>
     </property>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>450</y>
-      <width>101</width>
-      <height>111</height>
-     </rect>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>150</height>
+     </size>
     </property>
-    <property name="title">
-     <string>Оценка в:</string>
-    </property>
-    <widget class="QRadioButton" name="radioButtonUSD">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>51</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>USD</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButtonBTC">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>51</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>BTC</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>450</y>
-      <width>131</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Эмиссия:</string>
-    </property>
-    <widget class="QRadioButton" name="radioButtonSupplyTotal">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>101</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>AVAIBLE</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButtonSupplyAv">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>111</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TOTAL</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButtonSupplyMax">
+    <widget class="QPushButton" name="pushButtonUpdate_2">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>70</y>
-       <width>111</width>
-       <height>23</height>
+       <width>401</width>
+       <height>31</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: 2px outset grey;
+	border-radius: 10px;
+	background-color: gainsboro;
+	font-size: 14px;
+}
+
+QPushButton:pressed
+{
+	border: 1px inset grey;
+}
+
+
+</string>
+     </property>
      <property name="text">
-      <string>MAX</string>
+      <string>Обновить доп. информацию</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_3">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>450</y>
-      <width>71</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Рост</string>
-    </property>
-    <widget class="QRadioButton" name="radioButtonPR">
+    <widget class="QPushButton" name="pushButtonUpdate_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>401</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: 2px outset grey;
+	border-radius: 10px;
+	background-color: gainsboro;
+	font-size: 14px;
+}
+
+QPushButton:pressed
+{
+	border: 1px inset grey;
+}
+
+
+</string>
+     </property>
+     <property name="text">
+      <string>Обновить статистику</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonUpdate">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>51</width>
-       <height>23</height>
+       <width>401</width>
+       <height>31</height>
       </rect>
      </property>
-     <property name="text">
-      <string>%</string>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	border: 2px outset grey;
+	border-radius: 10px;
+	background-color: gainsboro;
+	font-size: 14px;
+}
+
+QPushButton:pressed
+{
+	border: 1px inset grey;
+}
+
+
+</string>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="text">
+      <string>Обновить список</string>
      </property>
     </widget>
-    <widget class="QRadioButton" name="radioButtonDP">
+    <widget class="QGroupBox" name="groupBox_2">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>51</width>
-       <height>23</height>
+       <x>450</x>
+       <y>10</y>
+       <width>131</width>
+       <height>111</height>
       </rect>
      </property>
-     <property name="text">
-      <string>dP</string>
+     <property name="title">
+      <string>Эмиссия:</string>
+     </property>
+     <widget class="QRadioButton" name="radioButtonSupplyTotal">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>101</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>AVAIBLE</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButtonSupplyAv">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TOTAL</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButtonSupplyMax">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>MAX</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxPrecisionPrices">
+     <property name="geometry">
+      <rect>
+       <x>810</x>
+       <y>70</y>
+       <width>221</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="prefix">
+      <string>Точность цен: </string>
+     </property>
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="value">
+      <number>4</number>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>710</x>
+       <y>10</y>
+       <width>71</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Рост</string>
+     </property>
+     <widget class="QRadioButton" name="radioButtonPR">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>%</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButtonDP">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>dP</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>600</x>
+       <y>10</y>
+       <width>101</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Оценка в:</string>
+     </property>
+     <widget class="QRadioButton" name="radioButtonUSD">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>USD</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="radioButtonBTC">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>BTC</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxPrecisionIncrease">
+     <property name="geometry">
+      <rect>
+       <x>810</x>
+       <y>100</y>
+       <width>221</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="prefix">
+      <string>Точность оценки роста: </string>
+     </property>
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="value">
+      <number>3</number>
      </property>
     </widget>
    </widget>
-   <widget class="QSpinBox" name="spinBoxPrecisionPrices">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>510</y>
-      <width>221</width>
-      <height>26</height>
+      <x>10</x>
+      <y>10</y>
+      <width>1041</width>
+      <height>41</height>
      </rect>
     </property>
-    <property name="prefix">
-     <string>Точность цен: </string>
-    </property>
-    <property name="maximum">
-     <number>20</number>
-    </property>
-    <property name="value">
-     <number>4</number>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayoutControlsTop">
+     <item>
+      <widget class="QPushButton" name="pushButtonActual">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Актуальные данные</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonPrevScan">
+       <property name="text">
+        <string>Предыдущее сканирование</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonNewProjects">
+       <property name="text">
+        <string>Новые проекты</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonDeadProjects">
+       <property name="text">
+        <string>Удаленые проекты</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QSpinBox" name="spinBoxPrecisionIncrease">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>540</y>
-      <width>221</width>
-      <height>26</height>
+      <x>10</x>
+      <y>50</y>
+      <width>1031</width>
+      <height>331</height>
      </rect>
     </property>
-    <property name="prefix">
-     <string>Точность оценки роста: </string>
-    </property>
-    <property name="maximum">
-     <number>20</number>
-    </property>
-    <property name="value">
-     <number>3</number>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonActual">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>201</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
-    </property>
-    <property name="text">
-     <string>Актуальные данные</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonPrevScan">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>20</y>
-      <width>201</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Предыдущее сканирование</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonNewProjects">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>20</y>
-      <width>201</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Новые проекты</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonDeadProjects">
-    <property name="geometry">
-     <rect>
-      <x>650</x>
-      <y>20</y>
-      <width>201</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Удаленые проекты</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTableWidget" name="tableWidgetCurrencies">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="showDropIndicator" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="dragDropOverwriteMode">
+        <bool>false</bool>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="cornerButtonEnabled">
+        <bool>true</bool>
+       </property>
+       <attribute name="horizontalHeaderCascadingSectionResizes">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>№</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Название</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Символ</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Капитализация</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Цена</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Эмиссия</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Объем (24ч)</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>% (1ч)</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>% (24ч)</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>% (7д)</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayoutA">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(240, 183, 183);</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="QPushButton" name="pushButton">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>7</y>
+            <width>80</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Удалить</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -426,7 +531,7 @@ QPushButton:pressed
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1073</width>
+     <width>1053</width>
      <height>22</height>
     </rect>
    </property>
