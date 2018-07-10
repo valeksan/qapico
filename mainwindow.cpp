@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pUi->centralWidget->setLayout(pMainLayout);
 
-    m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     m_pDb = new DataBase();
     m_pDb->connectToDataBase();
@@ -56,6 +56,25 @@ MainWindow::MainWindow(QWidget *parent) :
     registerTasks();
 
     displayCurrenciesUpdate();
+
+//    m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+//    //m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    for (int c = 1; c < m_pUi->tableWidgetCurrencies->horizontalHeader()->count(); ++c)
+//    {
+//        m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+//    }
+
+//    m_pUi->tableWidgetCurrencies->horizontalHeader()->sortIndicatorChanged
+
+//    connect(m_pUi->tableWidgetCurrencies->horizontalHeader(), &QHeaderView::, [&](const QModelIndex &logicalIndex) {
+//        Q_UNUSED(logicalIndex)
+//        m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+//        //m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//        for (int c = 1; c < m_pUi->tableWidgetCurrencies->horizontalHeader()->count(); ++c)
+//        {
+//            m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
+//        }
+//    });
 
     connect(m_pUi->spinBoxPrecisionPrices, SELECT<int>::OVERLOAD_OF(&QSpinBox::valueChanged), [&](int i) {
         Q_UNUSED(i)
@@ -230,6 +249,8 @@ void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
     m_pUi->tableWidgetCurrencies->setSortingEnabled(false);
     while (m_pUi->tableWidgetCurrencies->rowCount() != 0) m_pUi->tableWidgetCurrencies->removeRow(0);
 
+
+
     //for(int i=0; i<resultList.size(); i++) m_pUi->tableWidgetCurrencies->insertRow(i);
     for(int i=0; i<resultList.size(); i++) {
         m_pUi->tableWidgetCurrencies->insertRow(i);
@@ -308,15 +329,16 @@ void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
         m_pUi->tableWidgetCurrencies->item(i, 9)->setTextColor(QColor((tmpValue < 0) ? Qt::red : ((tmpValue > 0) ? Qt::darkGreen : Qt::black)));
         //m_pUi->tableWidgetCurrencies->model()->setData(m_pUi->tableWidgetCurrencies->model()->index(i, 9), QColor((tmpValue < 0) ? Qt::red : ((tmpValue > 0) ? Qt::darkGreen : Qt::black)), Qt::TextColorRole);
     }
+
+    m_pUi->tableWidgetCurrencies->setSortingEnabled(true);
+    m_pUi->tableWidgetCurrencies->sortByColumn(0, Qt::AscendingOrder);
+
     m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     for (int c = 1; c < m_pUi->tableWidgetCurrencies->horizontalHeader()->count(); ++c)
     {
         m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }
-    m_pUi->tableWidgetCurrencies->setSortingEnabled(true);
-    m_pUi->tableWidgetCurrencies->sortByColumn(0, Qt::AscendingOrder);
 }
 
 void MainWindow::displayCurrenciesUpdate(){

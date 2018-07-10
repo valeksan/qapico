@@ -34,10 +34,22 @@ public:
         QString str1 = text();
         QString str2 = other.text();
 
-        if (str1[0] == '$' || str1[0] == '+') {
-            str1.remove(0, 1);
-            str2.remove(0, 1); // we assume both items have the same format
-        }
+        if (str1[0] == '$') str1.remove(0, 1);
+        else if(str1[1] == '$') str1.remove(1, 1);
+
+        if (str2[0] == '$') str2.remove(0, 1);
+        else if(str2[1] == '$') str2.remove(1, 1);
+
+//        if(str1.length() > 0 && str2.length() > 0) {
+//            if (str1[0] == '$' || str1[0] == '+') {
+//                str1.remove(0, 1);
+//                str2.remove(0, 1); // we assume both items have the same format
+//                if(str1.length() > 0 && str2.length() > 0) {
+//                    if (str1[0] == '$') str1.remove(0, 1);
+//                    if (str1[1] == '$') str1.remove(1, 1);
+//                }
+//            }
+//        }
 
         if (str1[str1.length() - 1] == '%') {
             str1.chop(1);

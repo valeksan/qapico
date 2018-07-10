@@ -3,7 +3,6 @@
 # Project created by QtCreator 2018-02-06T10:04:27
 #
 #-------------------------------------------------
-
 QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -58,6 +57,3 @@ DEPENDPATH += $$PWD/libs/QGumboParser/QGumboParser
 
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/libs/QGumboParser/QGumboParser/QGumboParser.lib
 else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/libs/QGumboParser/QGumboParser/libQGumboParser.a
-
-#INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/sqlite
-#SOURCES += $$[QT_INSTALL_PREFIX]/src/3rdparty/sqlite/sqlite3.c
