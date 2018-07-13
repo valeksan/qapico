@@ -25,13 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pUi->centralWidget->setLayout(pMainLayout);
 
-//    m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
     m_pDb = new DataBase();
     m_pDb->connectToDataBase();
-
-//    if(db->isInMemory())
-//        db->sqliteDBMemFile(QString("%1.mem").arg(db->getDatabaseFilename()), false);
 
     connect(m_pCore, &Core::finishedTask, this, &MainWindow::slotFinishedTask);
 
@@ -44,37 +39,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pUi->pushButtonUpdate_2->setEnabled(m_isBaseCurrenciesInit);
     m_pUi->pushButtonUpdate_3->setEnabled(m_isInfoCurrenciesInit);
 
-
-//    QUrl url("https://github.com/input-output-hk/cardano-sl/");
-//    qDebug() << url.path();
-//    qDebug() << url.path().section("/",0,0);
-//    qDebug() << url.path().section("/",1,1); \\ OK!
-
-//    qDebug() << convertGithubUrlToApiReq(QUrl("https://github.com/input-output-hk/cardano-sl/"));
     updateColorCheckTableButton();
 
     registerTasks();
 
     displayCurrenciesUpdate();
-
-//    m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-//    //m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    for (int c = 1; c < m_pUi->tableWidgetCurrencies->horizontalHeader()->count(); ++c)
-//    {
-//        m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
-//    }
-
-//    m_pUi->tableWidgetCurrencies->horizontalHeader()->sortIndicatorChanged
-
-//    connect(m_pUi->tableWidgetCurrencies->horizontalHeader(), &QHeaderView::, [&](const QModelIndex &logicalIndex) {
-//        Q_UNUSED(logicalIndex)
-//        m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-//        //m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//        for (int c = 1; c < m_pUi->tableWidgetCurrencies->horizontalHeader()->count(); ++c)
-//        {
-//            m_pUi->tableWidgetCurrencies->horizontalHeader()->setSectionResizeMode(c, QHeaderView::Stretch);
-//        }
-//    });
 
     connect(m_pUi->spinBoxPrecisionPrices, SELECT<int>::OVERLOAD_OF(&QSpinBox::valueChanged), [&](int i) {
         Q_UNUSED(i)
@@ -127,6 +96,7 @@ void MainWindow::registerTasks()
             Q_UNUSED(args)
             TaskResult result;
             DownloadError err;
+            bool tmpFlag;
             QUrl cmcpApiUrl("https://api.coinmarketcap.com/v1/ticker/?limit=0");
             QByteArray page = Downloader::getHtmlPage(cmcpApiUrl, 15000, err);
             if(err.error == DownloadError::ERR_OK) {
@@ -136,11 +106,19 @@ void MainWindow::registerTasks()
                 qDebug() << "currencies_size:" << resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
                 if(resultParseCMC.error == Parser::ERR_OK) {
                     // подготовка таблиц - очистка старых записей в PREV-версии
-                    m_pDb->clearTableByIdx(IDX_TABLE_CURRENCIES_PREV);
-                    // подготовка таблиц - копирование текущих старых записей в PREV
-                    m_pDb->copyTable(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV);
-                    // подготовка таблиц - очистка старых записей в актуальной таблице
-                    m_pDb->clearTableByIdx(IDX_TABLE_CURRENCIES);
+
+                    QMetaObject::invokeMethod(m_pDb, "tableIsEmpty", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES));
+                    qDebug() << "currencies table is empty: " << tmpFlag;
+                    if(!tmpFlag) {
+                        QMetaObject::invokeMethod(m_pDb, "clearTableByIdx", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES_PREV));
+                        //m_pDb->clearTableByIdx(IDX_TABLE_CURRENCIES_PREV);
+                        // подготовка таблиц - копирование текущих старых записей в PREV
+                        QMetaObject::invokeMethod(m_pDb, "copyTable", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES), Q_ARG(int, IDX_TABLE_CURRENCIES_PREV));
+                        //m_pDb->copyTable(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV);
+                        // подготовка таблиц - очистка старых записей в актуальной таблице
+                        QMetaObject::invokeMethod(m_pDb, "clearTableByIdx", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES));
+                        //m_pDb->clearTableByIdx(IDX_TABLE_CURRENCIES);
+                    }
                     // сохранение в БД ...
                     qDebug() << "save to DB ...";
                     int size = resultParseCMC.values.value(Parser::KEY_MAIN_TABLE_CURRENCIES).toHash().size();
@@ -173,11 +151,15 @@ void MainWindow::registerTasks()
                         //qDebug() << (i+1)*100.0/size << "%";
                         QMetaObject::invokeMethod(m_pUi->progressBar, "setValue", Q_ARG(int, (i+1)*100/size));
                     }
-                    // выявление недействительных (DEAD) записей - умерших проектов, и запись их в соотв. таблицу
-                    m_pDb->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_DEAD);
-                    // выявление новых (BORN) записей - новых проектов, и запись их в соотв. таблицу
-                    m_pDb->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES_BORN);
-                    //db->insertIntoCurrenciesTable()
+                    QMetaObject::invokeMethod(m_pDb, "tableIsEmpty", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES_PREV));
+                    if(!tmpFlag) {
+                        // выявление недействительных (DEAD) записей - умерших проектов, и запись их в соотв. таблицу
+                        QMetaObject::invokeMethod(m_pDb, "copyCurrenciesBetweenTablesByNotExist", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES_PREV), Q_ARG(int, IDX_TABLE_CURRENCIES), Q_ARG(int, IDX_TABLE_CURRENCIES_DEAD));
+                        //m_pDb->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_DEAD);
+                        // выявление новых (BORN) записей - новых проектов, и запись их в соотв. таблицу
+                        QMetaObject::invokeMethod(m_pDb, "copyCurrenciesBetweenTablesByNotExist", Qt::BlockingQueuedConnection, Q_RETURN_ARG(bool, tmpFlag), Q_ARG(int, IDX_TABLE_CURRENCIES), Q_ARG(int, IDX_TABLE_CURRENCIES_PREV), Q_ARG(int, IDX_TABLE_CURRENCIES_BORN));
+                        //m_pDb->copyCurrenciesBetweenTablesByNotExist(IDX_TABLE_CURRENCIES, IDX_TABLE_CURRENCIES_PREV, IDX_TABLE_CURRENCIES_BORN);
+                    }
                     QMetaObject::invokeMethod(m_pUi->statusBar, "showMessage",
                                               Q_ARG(QString, "Обновление списка проектов завершено"),
                                               Q_ARG(int, 5000));
@@ -211,7 +193,7 @@ void MainWindow::registerTasks()
             Q_UNUSED(args)
             TaskResult result;
             DownloadError err;
-            //...
+            // COMING SON ...
             return result;
         }, 1);
     } catch (const CoreException &ex) {
@@ -246,10 +228,9 @@ void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
 //    if(resultList.empty()) {
 //        return;
 //    }
+
     m_pUi->tableWidgetCurrencies->setSortingEnabled(false);
     while (m_pUi->tableWidgetCurrencies->rowCount() != 0) m_pUi->tableWidgetCurrencies->removeRow(0);
-
-
 
     //for(int i=0; i<resultList.size(); i++) m_pUi->tableWidgetCurrencies->insertRow(i);
     for(int i=0; i<resultList.size(); i++) {
@@ -262,7 +243,7 @@ void MainWindow::displayCurrenciesFromBase(int table_currencies_idx)
         m_pUi->tableWidgetCurrencies->setItem(i, 1, new TableSimpleItem(resultList.value(i).value(IDX_CURRENCIES_NAME).toString()));
         m_pUi->tableWidgetCurrencies->setItem(i, 2, new TableSimpleItem(resultList.value(i).value(IDX_CURRENCIES_SYMBOL).toString()));
         //m_pUi->tableWidgetCurrencies->model()->setData(m_pUi->tableWidgetCurrencies->model()->index(i, 2), resultList.value(i).value(IDX_CURRENCIES_SYMBOL), Qt::DisplayRole);
-        m_pUi->tableWidgetCurrencies->setItem(i, 3, new TableSimpleItem(resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD).toString()));
+        m_pUi->tableWidgetCurrencies->setItem(i, 3, new TableNumberItem(QString("$")+resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD).toString()));
         //m_pUi->tableWidgetCurrencies->model()->setData(m_pUi->tableWidgetCurrencies->model()->index(i, 3), QString("$")+resultList.value(i).value(IDX_CURRENCIES_MARKETCAP_USD).toString(), Qt::DisplayRole);
         if(m_pUi->radioButtonUSD->isChecked()) {
             price_usd = resultList.value(i).value(IDX_CURRENCIES_PRICE_USD).toDouble();

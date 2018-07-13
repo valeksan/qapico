@@ -41,10 +41,10 @@ public:
     bool insertIntoGithubHistoryPoolTable(const QHash<int,QVariant> &roles);
     bool insertIntoMarketsTable(const QHash<int,QVariant> &roles);
 
-    bool clearTableByIdx(int table_idx, QString condition = "");
+    Q_INVOKABLE bool clearTableByIdx(int table_idx, QString condition = "");
 
-    bool copyTable(int source_table_idx, int destination_table_idx, bool orReplace = true, QString condition = "");
-    bool copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace = true);
+    Q_INVOKABLE bool copyTable(int source_table_idx, int destination_table_idx, bool orReplace = true, QString condition = "");
+    Q_INVOKABLE bool copyCurrenciesBetweenTablesByNotExist(int source_select_items_table_idx, int source_comparable_table_idx, int destination_finded_item_table_idx, bool orReplace = true);
 
     QList<QHash<int,QVariant> > selectFromCurrenciesTable(const QList<int> columns_ids, int table_idx = IDX_TABLE_CURRENCIES);
 
@@ -52,6 +52,8 @@ public:
 
     static QString getCellNameByIdx(int table_idx, int cell_idx);
     static QString getTableNameByIdx(int table_idx);
+
+    Q_INVOKABLE bool tableIsEmpty(int table_idx);
 
 private:
     // Сам объект базы данных, с которым будет производиться работа

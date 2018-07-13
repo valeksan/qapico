@@ -1097,6 +1097,43 @@ QString DataBase::getTableNameByIdx(int table_idx)
     return "";
 }
 
+bool DataBase::tableIsEmpty(int table_idx)
+{
+    QSqlQuery query;
+    QString aimCell;
+
+    bool result;
+
+    switch (table_idx) {
+    case IDX_TABLE_CURRENCIES:
+    case IDX_TABLE_CURRENCIES_PREV:
+    case IDX_TABLE_CURRENCIES_DEAD:
+    case IDX_TABLE_CURRENCIES_BORN:
+    case IDX_TABLE_CURRENCIES_MEM:
+        aimCell = "sid";
+        break;
+    default:
+        aimCell = "id";
+        break;
+    }
+
+    QString sql_cmd = QString("SELECT COUNT('%1') FROM %2 LIMIT 1;").arg(aimCell).arg(getTableNameByIdx(table_idx));
+    query.prepare(sql_cmd);
+
+    if(!query.exec()) {
+        qDebug() << "prepare_query:" << sql_cmd;
+        qDebug() << "last_query:" << query.lastQuery();
+        qDebug() << "Error select, " << query.lastError().text();
+        result = true;
+    } else {
+        query.first();
+    }
+    result = (query.value(0).toInt() == 0);
+    query.finish();
+
+    return result;
+}
+
 /* Метод для открытия базы данных
  * */
 bool DataBase::openDataBase()

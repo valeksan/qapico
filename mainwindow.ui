@@ -441,17 +441,17 @@ QPushButton:pressed
        </column>
        <column>
         <property name="text">
-         <string>% (1ч)</string>
+         <string>Рост (1ч)</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>% (24ч)</string>
+         <string>Рост (24ч)</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>% (7д)</string>
+         <string>Рост (7д)</string>
         </property>
        </column>
       </widget>
